@@ -122,10 +122,10 @@
 				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
 				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
 
-				backCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
-				frontCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
+				//This causes the bug: TypeError: Error #1034: Type Coercion failed: cannot convert mx.events::FlexEvent@9977551 to qs.controls.flexBookClasses.FlexBookEvent.
+				//backCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
 
-//				book.addEventListener(MouseEvent.MOUSE_DOWN, hideInstructions);
+				//frontCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
 
 				BindingUtils.bindSetter(setBookContent, this, "conf");
 

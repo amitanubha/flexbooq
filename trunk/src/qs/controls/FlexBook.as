@@ -209,6 +209,10 @@ package qs.controls
 		private var _pageRight:Number;
 		private var _pageBottom:Number;
 
+		// pages stack for better visualisation
+		private var _pageStack: Sprite;
+		private var _pageStackArray: Array;
+
 //--------------------------------------------------------------------------------------------------------
 // public properties
 //-------------------------------------------------------------------------------------------------------
@@ -520,6 +524,11 @@ package qs.controls
 
 		override protected function createChildren():void
 		{
+			// draw page-stack
+			_pageStack = new Sprite();
+
+			addChild(_pageStack);
+
 			_flipLayer= new Shape();
 			_interactionLayer = new Sprite();
 
@@ -728,6 +737,10 @@ package qs.controls
 		private function dispatchEventForPage(page:FlexBookPage,turning:Boolean):void
 		{
 			var eventType:String = (turning)? FlexBookEvent.TURN_START:FlexBookEvent.TURN_END;
+
+			_pageStackDirty = true;
+			updatePageStack(eventType);
+
 			if(page.allRenderer != null)
 			{
 				dispatchEvent(new FlexBookEvent(eventType,false,false,page.allIndex,page.allContent,page.allRenderer));
@@ -836,6 +849,66 @@ package qs.controls
 		}
 
 
+		private static const PAGE_STACK_FILL_COLOR: uint = 0xbbbbbb;
+		private static const PAGE_STACK_LINE_COLOR: uint = 0x666666;
+
+		private var _pageStackDirty: Boolean = true;
+		private function updatePageStack(eventType:String = FlexBookEvent.TURN_START):void
+		{
+			var pageOffset: int = 2;
+
+			var g:Graphics = _pageStack.graphics;
+			g.clear();
+
+			var curPageIndex: int = _displayedPageIndex;
+			if(eventType == FlexBookEvent.TURN_START)
+			{
+				if (_turnDirection == TURN_DIRECTION_FORWARD)
+				{
+					if( curPageIndex == pageCount - 1)
+					{
+						curPageIndex += 1;
+					}
+				}
+				else
+				{
+					if (curPageIndex == 0)
+					{
+						curPageIndex = -1;
+					}
+				}
+			}
+
+			// Draw left side
+			var i: int = curPageIndex + 1;
+			var c: int = 0;
+
+			trace("Draw pages stack: " + curPageIndex + " left, " + pageCount + " total (" + eventType + ")");
+
+			var w: int = width / 2;
+			var h: int = height;
+			for(i; i>c; i--)
+			{
+				g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true );
+				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
+				g.drawRect( i * pageOffset, i * pageOffset, w, h);
+				g.endFill();
+			}
+
+			// Draw right side
+			i = pageCount - curPageIndex;
+			c = 0;
+			for(i; i>c; i--)
+			{
+				g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true );
+				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
+				g.drawRect( i * pageOffset + w, i * pageOffset, w, h);
+				g.endFill();
+			}
+
+			_pageStackDirty = false;
+		}
+
 		private function updateInteractionLayer():void
 		{
 			var g:Graphics = _interactionLayer.graphics;
@@ -902,6 +975,10 @@ package qs.controls
 
 			updateInteractionLayer();
 
+			if(_pageStackDirty)
+			{
+				updatePageStack();
+			}
 
 			if(_state != STATE_NONE)
 			{
