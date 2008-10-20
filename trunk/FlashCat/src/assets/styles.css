@@ -1,0 +1,39 @@
+/* CSS file */
+
+		*
+		{
+			padding-top:0;
+			padding-right:0;
+			padding-bottom:0;
+			padding-left:0;
+		}
+
+		FlexBook {
+
+			color: #000000;
+			textRollOverColor: 	#000000;
+
+			border-thickness: 0;
+			border-style: none;
+			page-slope: .6;
+			active-grab-area: page;
+			page-shadow-strength: 1;
+			curve-shadow-strength: 1;
+			auto-turn-duration: 1500;
+
+			drop-shadow-color: #ff0000;
+			drop-shadow-enabled: true;
+			shadow-color:#ff0000;
+		}
+
+		Application {
+			color: #F1F1CC;
+			textRollOverColor: 	#FFFFFF;
+			backgroundGradientColors: #ffffff, #ffffff;
+			backgroundColor: #ffffff;
+		}
+
+		SuperImage {
+			border-thickness: 0;
+			border-style: none;
+		}
