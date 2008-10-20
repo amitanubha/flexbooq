@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Canvas xmlns="http://www.adobe.com/2006/mxml" width="600" height="400" xmlns:controls="qs.controls.*"
+	backgroundColor="#FFFFFF" horizontalScrollPolicy="off" verticalScrollPolicy="off" clipContent="false">
+	<!--
+	Copyright (c) 2006 Adobe Systems Incorporated
+
+	Permission is hereby granted, free of charge, to any person
+	obtaining a copy of this software and associated documentation
+	files (the "Software"), to deal in the Software without
+	restriction, including without limitation the rights to use,
+	copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the
+	Software is furnished to do so, subject to the following
+	conditions:
+
+	The above copyright notice and this permission notice shall be
+	included in all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+	OTHER DEALINGS IN THE SOFTWARE.
+	-->
+	<states>
+		<State name="loadingState">
+			<AddChild position="lastChild">
+<!--				<HBox id="loadingContent" horizontalCenter="0" verticalCenter="-6"  backgroundColor="#000000" backgroundAlpha="0.32" borderStyle="solid" borderThickness="0" paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="10" cornerRadius="20">
+					<LinkButton label="Loading" color="#DDDDDD" fontFamily="Arial" fontWeight="bold" fontSize="68" />
+				</HBox>
+-->
+					<Image id="loadingContent"  horizontalCenter="0" verticalCenter="-6"   source="@Embed('assets/loading.png')" />
+			</AddChild>
+		</State>
+	</states>
+	<transitions>
+		<Transition fromState="" toState="loadingState">
+				<Fade alphaTo="1" target="{loadingContent}" duration="1000"/>
+		</Transition>
+		<Transition toState="" fromState="loadingState">
+			<Sequence>
+				<Fade alphaTo="0" target="{loadingContent}" duration="1000"/>
+				<RemoveChildAction target="{loadingContent}" />
+			</Sequence>
+		</Transition>
+	</transitions>
+
+	<Script>
+		<![CDATA[
+
+			//mx.core.Singleton.registerClass("mx.styles::IStyleManager2", Class(ApplicationDomain.currentDomain.getDefinition("mx.styles::StyleManagerImpl")));
+
+			private var _loaded:Boolean = false;
+			public function load():void
+			{
+				if(_loaded)
+					return;
+				_loaded = true;
+				full.source = data.source.toString();
+				currentState = "loadingState";
+			}
+			//private function thumbInitializeHandler(event: Event):void
+			//{
+
+			//}
+
+		]]>
+	</Script>
+	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="thumb" source="{data.thumb.toString()}" />
+	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="full" complete="currentState = ''"/>
+
+	<Label id="pageLabel" color="0x999999" text="- {this.data.pageId} -" x="{width/2 - pageLabel.width/2}" y="{height + 4}" />
+</Canvas>
