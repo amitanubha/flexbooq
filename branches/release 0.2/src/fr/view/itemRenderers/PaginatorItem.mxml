@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qs="qs.controls.*"
+	implements="mx.controls.listClasses.IDropInListItemRenderer"
+	horizontalGap="0" paddingTop="1" paddingLeft="2" paddingRight="2" horizontalAlign="center" backgroundAlpha="0"
+	buttonMode="true" mouseChildren="false"
+	click="selectedHandler();" mouseOver="mouseOverHandler();" mouseOut="mouseOutHandler();">
+
+	<!--itemRenderers:PageThumbItemRenderer upSource="{data..fn_page_active.@mouseup}" pageNum="2" pageActive="true" />
+	<itemRenderers:PageThumbItemRenderer upSource="{data..fn_page_active.@mouseup}" pageNum="3" pageActive="true"/ -->
+
+	<mx:Style>
+		.pageThumbStyle
+		{
+			color: #ffffff;
+			font-size: 9;
+			font-family: "Arial";
+		}
+		.pageThumbStyleActive
+		{
+			color: #000000;
+			font-size: 9;
+			font-family: "Arial";
+		}
+	</mx:Style>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.ListData;
+			import fcat.events.BookEvent;
+			import fr.view.controls.Paginator;
+			import mx.controls.listClasses.ListItemRenderer;
+			import mx.controls.HorizontalList;
+			import fr.model.vo.BookPageVO;
+
+			private var _listData: ListData;
+
+			private var myList: Paginator;
+
+			public function onChange(value: Object): void
+			{
+				trace("on Change");
+			}
+
+			override public function set data(value: Object): void
+			{
+				super.data = value;
+
+				invalidateProperties();
+			}
+
+			public function get listData():BaseListData
+			{
+				return _listData as ListData;
+			}
+
+			public function set listData(value: BaseListData): void
+			{
+				_listData = value as ListData;
+
+				myList = _listData.owner as Paginator;
+
+				//trace("upSourse = " + myList.upSource );
+			}
+
+
+			public function selectedHandler():void
+			{
+				var event: BookEvent = new BookEvent( BookEvent.PAGE_SELECT, true );
+				event.pageId = data.pageId;
+				dispatchEvent( event );
+			}
+
+			override protected function updateDisplayList(unscaledWidth:Number,
+	            unscaledHeight:Number):void
+	        {
+	            super.updateDisplayList(unscaledWidth, unscaledHeight);
+
+	            //figure out if this itemRenderer is selected
+	            if(myList.isItemSelected(data) || isMouseOver)
+	            {
+					btUp.source = btUp2.source = myList.activeUpSource;
+					styleName = "pageThumbStyle";
+	            }
+	         	//otherwise, return the label to its regular state
+	           	else
+	           	{
+					btUp.source = btUp2.source = myList.upSource;
+					styleName = "pageThumbStyleActive";
+	            }
+	        }
+
+
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+
+				//trace("SI: " + myList.selectedIndex + " -- " + listData.columnIndex );
+
+
+				var pageVO: BookPageVO = data as BookPageVO;
+
+				pageNumber.text = String(pageVO.pageId);
+				pageNumber2.text = String(pageVO.pageId + 1);
+
+				if(pageVO.isFrontCover)
+				{
+					currentState = "frontCoverState";
+					pageNumber2.text = String(pageVO.pageId);;
+				}
+				else if (pageVO.isBackCover)
+				{
+					currentState = "backCoverState";
+					pageNumber.text = String(pageVO.pageId);;
+				}
+			}
+
+			private var isMouseOver: Boolean = false;
+
+			private function mouseOverHandler(): void
+			{
+            	isMouseOver = true;
+            	invalidateDisplayList();
+			}
+
+			private function mouseOutHandler(): void
+			{
+				isMouseOver = false;
+            	invalidateDisplayList();
+			}
+		]]>
+	</mx:Script>
+
+	<mx:Canvas id="firstPage" width="14">
+		<qs:SuperImage id="btUp" x="1" width="13" height="18" />
+		<mx:Label id="pageNumber" y="4" width="100%" textAlign="center" />
+	</mx:Canvas>
+
+	<mx:Canvas id="secondPage" width="14">
+		<qs:SuperImage id="btUp2" x="1" width="13" height="18" />
+		<mx:Label id="pageNumber2" y="4" width="100%" textAlign="center" />
+	</mx:Canvas>
+
+	<mx:states>
+		<mx:State name="frontCoverState" >
+			<mx:RemoveChild target="{firstPage}" />
+			<mx:SetStyle name="horizontalAlign" value="right" />
+		</mx:State>
+		<mx:State name="backCoverState">
+			<mx:RemoveChild target="{secondPage}" />
+			<mx:SetStyle name="horizontalAlign" value="left" />
+		</mx:State>
+	</mx:states>
+
+</mx:HBox>
