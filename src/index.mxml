@@ -114,8 +114,12 @@
 
 				bookPageData.addItem(backCoverVO);
 
-				// Preload content
+				// Preload content to cache
 				var cache: ContentCache = ContentCache.getCache();
+
+				// First, preload the cover
+				cache.preloadContent(conf..cover.@thumb);
+
 				// Preload page thumbs
 				var thumbs:XMLList = conf..page.@thumb;
 				for(var i:int=0;i<thumbs.length();i++)
@@ -147,16 +151,10 @@
 						cache.preloadContent(pages[i]);
 					}
 				}
-				//cache.preloadContent(conf..cover.@source);
 				cache.preloadContent(conf..backcover.@source);
 
 				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
 				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
-
-				//This causes the bug: TypeError: Error #1034: Type Coercion failed: cannot convert mx.events::FlexEvent@9977551 to qs.controls.flexBookClasses.FlexBookEvent.
-				//backCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
-
-				//frontCover.addEventListener(FlexEvent.CREATION_COMPLETE, loadContent);
 
 				BindingUtils.bindSetter(setBookContent, this, "conf");
 
@@ -249,7 +247,7 @@
 
 			private function pageTurnStartHandler(event: FlexBookEvent): void
 			{
-				//loadContent(event);
+				checkContentIsLoaded(event);
 			}
 
 			private function pageTurnEndHandler(event: FlexBookEvent): void
@@ -257,6 +255,16 @@
 				fastnavigation.activePage = FlexBook(event.target).currentPageIndex + 1;
 
 				loadContent(event);
+			}
+
+			private function checkContentIsLoaded(event: FlexBookEvent): void
+			{
+				var page: ImagePage = event.renderer as ImagePage;
+				if(page != null && page.full != null)
+				{
+					//trace("Load full page " + event );
+					page.checkContentIsLoaded();
+				}
 			}
 
 			private function loadContent(event: FlexBookEvent): void

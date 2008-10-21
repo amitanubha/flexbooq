@@ -55,6 +55,16 @@
 			import qs.caching.ContentCache;
 			//mx.core.Singleton.registerClass("mx.styles::IStyleManager2", Class(ApplicationDomain.currentDomain.getDefinition("mx.styles::StyleManagerImpl")));
 
+			public function checkContentIsLoaded():void
+			{
+				if(data.loaded || ContentCache.getCache().hasContent(data.source.toString()))
+				{
+					full.source = data.source.toString();
+					thumb.visible = false;
+					return;
+				}
+			}
+
 			public function load():void
 			{
 				if(ContentCache.getCache().hasContent(data.source.toString()))
