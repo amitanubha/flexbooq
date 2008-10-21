@@ -27,6 +27,7 @@ package qs.controls
 	import flash.display.BitmapData;
 	import flash.display.GradientType;
 	import flash.display.Graphics;
+	import flash.display.LineScaleMode;
 	import flash.display.Shape;
 	import flash.display.SpreadMethod;
 	import flash.display.Sprite;
@@ -738,7 +739,6 @@ package qs.controls
 		{
 			var eventType:String = (turning)? FlexBookEvent.TURN_START:FlexBookEvent.TURN_END;
 
-			_pageStackDirty = true;
 			updatePageStack(eventType);
 
 			if(page.allRenderer != null)
@@ -851,8 +851,8 @@ package qs.controls
 
 		private static const PAGE_STACK_FILL_COLOR: uint = 0xbbbbbb;
 		private static const PAGE_STACK_LINE_COLOR: uint = 0x666666;
-
 		private var _pageStackDirty: Boolean = true;
+
 		private function updatePageStack(eventType:String = FlexBookEvent.TURN_START):void
 		{
 			var pageOffset: int = 2;
@@ -883,15 +883,15 @@ package qs.controls
 			var i: int = curPageIndex + 1;
 			var c: int = 0;
 
-			trace("Draw pages stack: " + curPageIndex + " left, " + pageCount + " total (" + eventType + ")");
+			//trace("Draw pages stack: " + curPageIndex + " left, " + pageCount + " total (" + eventType + ")");
 
 			var w: int = width / 2;
 			var h: int = height;
+			g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true, LineScaleMode.NONE );
 			for(i; i>c; i--)
 			{
-				g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true );
 				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
-				g.drawRect( i * pageOffset, i * pageOffset, w, h);
+				g.drawRect( i * pageOffset - pageOffset, i * pageOffset - pageOffset, w, h);
 				g.endFill();
 			}
 
@@ -900,9 +900,9 @@ package qs.controls
 			c = 0;
 			for(i; i>c; i--)
 			{
-				g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true );
+				//g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true, LineScaleMode.NONE);
 				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
-				g.drawRect( i * pageOffset + w, i * pageOffset, w, h);
+				g.drawRect( i * pageOffset + w - pageOffset, i * pageOffset - pageOffset, w, h);
 				g.endFill();
 			}
 
@@ -963,9 +963,9 @@ package qs.controls
 			{
 				updateDetails();
 				_interactionLayerDirty = true;
+				_pageStackDirty = true;
 				_pagesNeedUpdate = true;
 			}
-
 
 			if(_interactionLayerDirty)
 			{

@@ -10,6 +10,8 @@ package fr.model.vo
 		public var thumb: String = "";
 		public var source: String = "";
 
+		public var loaded: Boolean = false;
+
 		public var downloadLink: String = "";
 
 		public function BookPageVO()

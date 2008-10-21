@@ -40,10 +40,10 @@
 		<poweredby mouseup="viewer/poweredby-mouseup.png" mouseover="viewer/poweredby-mouseover.png" link="http://www.3steps2web.net" />
 
 		<!-- turn page left/right or jump to first/last page -->
-		<bt_scroll_previous mouseup="viewer/bt-scroll-prev-mouseup.png" mouseover="viewer/bt-scroll_left-mouseover.png" />
-		<bt_scroll_front mouseup="viewer/bt-scroll-front-mouseup.png" mouseover="viewer/bt-scroll_start-mouseover.png" />
-		<bt_scroll_next mouseup="viewer/bt-scroll-next-mouseup.png" mouseover="viewer/bt-scroll_right-mouseover.png" />
-		<bt_scroll_last mouseup="viewer/bt-scroll-last-mouseup.png" mouseover="viewer/bt-scroll_end-mouseover.png" />
+		<bt_scroll_previous mouseup="viewer/bt-scroll-prev-mouseup.png" mouseover="viewer/bt-scroll-prev-mouseover.png" />
+		<bt_scroll_front mouseup="viewer/bt-scroll-front-mouseup.png" mouseover="viewer/bt-scroll-front-mouseover.png" />
+		<bt_scroll_next mouseup="viewer/bt-scroll-next-mouseup.png" mouseover="viewer/bt-scroll-next-mouseover.png" />
+		<bt_scroll_last mouseup="viewer/bt-scroll-last-mouseup.png" mouseover="viewer/bt-scroll-last-mouseover.png" />
 
 		<!-- buttons for functions in bottom-bar
 
@@ -91,7 +91,7 @@
 		<fn_page_active mouseup="viewer/fn-active-mouseup.png" mouseover="viewer/fn-active-mouseover.png" />
 	</settings>
 
-	<book bg_image="viewer/bg-default.png" bg_color="#898989" pageWidth="500" pageHeight="614" >
+	<book bg_image="viewer/bg-default.png" bg_color="#898989" pageWidth="500" pageHeight="614" preloadFullPages="true" >
 		<!-- settings for each page
 
 		notes:
