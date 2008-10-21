@@ -28,21 +28,23 @@
 	<states>
 		<State name="loadingState">
 			<AddChild position="lastChild">
-<!--				<HBox id="loadingContent" horizontalCenter="0" verticalCenter="-6"  backgroundColor="#000000" backgroundAlpha="0.32" borderStyle="solid" borderThickness="0" paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="10" cornerRadius="20">
+				<Image id="loadingContent"  horizontalCenter="0" verticalCenter="-6" source="@Embed('assets/loading.png')" />
+
+				<!-- The following does the same as previous image, but no asset needed, only drawing -->
+				<!-- HBox id="loadingContent" horizontalCenter="0" verticalCenter="-6"  backgroundColor="#000000" backgroundAlpha="0.32" borderStyle="solid" borderThickness="0" paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="10" cornerRadius="20">
 					<LinkButton label="Loading" color="#DDDDDD" fontFamily="Arial" fontWeight="bold" fontSize="68" />
-				</HBox>
--->
-					<Image id="loadingContent"  horizontalCenter="0" verticalCenter="-6"   source="@Embed('assets/loading.png')" />
+				</HBox -->
 			</AddChild>
 		</State>
 	</states>
+
 	<transitions>
 		<Transition fromState="" toState="loadingState">
-				<Fade alphaTo="1" target="{loadingContent}" duration="1000"/>
+				<Fade alphaTo="1" target="{loadingContent}" duration="300"/>
 		</Transition>
 		<Transition toState="" fromState="loadingState">
 			<Sequence>
-				<Fade alphaTo="0" target="{loadingContent}" duration="1000"/>
+				<Fade alphaTo="0" target="{loadingContent}" duration="200"/>
 				<RemoveChildAction target="{loadingContent}" />
 			</Sequence>
 		</Transition>
@@ -50,27 +52,38 @@
 
 	<Script>
 		<![CDATA[
-
+			import qs.caching.ContentCache;
 			//mx.core.Singleton.registerClass("mx.styles::IStyleManager2", Class(ApplicationDomain.currentDomain.getDefinition("mx.styles::StyleManagerImpl")));
 
-			private var _loaded:Boolean = false;
 			public function load():void
 			{
-				if(_loaded)
+				if(ContentCache.getCache().hasContent(data.source.toString()))
+				{
+					full.source = data.source.toString();
+					loadComplete();
 					return;
-				_loaded = true;
+				}
+
+				if(data.loaded)
+				{
+					full.source = data.source.toString();
+					thumb.visible = false;
+					return;
+				}
+
 				full.source = data.source.toString();
 				currentState = "loadingState";
 			}
-			//private function thumbInitializeHandler(event: Event):void
-			//{
 
-			//}
-
+			private function loadComplete(): void
+			{
+				data.loaded = true;
+				currentState = '';
+			}
 		]]>
 	</Script>
 	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="thumb" source="{data.thumb.toString()}" />
-	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="full" complete="currentState = ''"/>
+	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="full" complete="loadComplete();"/>
 
-	<Label id="pageLabel" color="0x999999" text="- {this.data.pageId} -" x="{width/2 - pageLabel.width/2}" y="{height + 4}" />
+	<Label id="pageLabel" color="0x999999" text="- {this.data.pageId} -" x="{width/2 - pageLabel.width/2}" y="{height + 8}" />
 </Canvas>

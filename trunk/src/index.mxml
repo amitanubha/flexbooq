@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Application backgroundGradientAlphas="0,0" backgroundColor="0x000000" xmlns="http://www.adobe.com/2006/mxml" xmlns:l="*" layout="absolute"
+<Application backgroundGradientAlphas="0,0" backgroundColor="0x000000" xmlns="http://www.adobe.com/2006/mxml" xmlns:l="*"
+	layout="absolute"
 	backgroundGradientColors="[#000000, #000000]"
 	preloader="preload.CustomPreloader"
 	xmlns:controls="qs.controls.*"
@@ -113,11 +114,41 @@
 
 				bookPageData.addItem(backCoverVO);
 
+				// Preload content
+				var cache: ContentCache = ContentCache.getCache();
+				// Preload page thumbs
 				var thumbs:XMLList = conf..page.@thumb;
-				for(var i:int =0;i<thumbs.length();i++)
+				for(var i:int=0;i<thumbs.length();i++)
 				{
-					ContentCache.getCache().preloadContent(thumbs[i]);
+					cache.preloadContent(thumbs[i]);
 				}
+
+				//preload buttons mouseovers
+				cache.preloadContent(conf..bt_scroll_previous.@mouseover);
+				cache.preloadContent(conf..bt_scroll_front.@mouseover);
+				cache.preloadContent(conf..bt_scroll_next.@mouseover);
+				cache.preloadContent(conf..bt_scroll_last.@mouseover);
+				cache.preloadContent(conf..bt_index.@mouseover);
+				cache.preloadContent(conf..bt_zoomin.@mouseover);
+				cache.preloadContent(conf..bt_zoomout.@mouseover);
+				cache.preloadContent(conf..bt_download.@mouseover);
+				cache.preloadContent(conf..bt_bookmark.@mouseover);
+				cache.preloadContent(conf..bt_helpscreen.@mouseover);
+
+				cache.preloadContent(conf..logo.@mouseover);
+				cache.preloadContent(conf..poweredby.@mouseover);
+
+				// Preload page full images
+				if(String(conf..book.@preloadFullPages).toLowerCase() == "true")
+				{
+					var pages:XMLList = conf..page.@source;
+					for(i=0;i<pages.length();i++)
+					{
+						cache.preloadContent(pages[i]);
+					}
+				}
+				//cache.preloadContent(conf..cover.@source);
+				cache.preloadContent(conf..backcover.@source);
 
 				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
 				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
@@ -230,7 +261,7 @@
 
 			private function loadContent(event: FlexBookEvent): void
 			{
-				var page: * = event.renderer;
+				var page: ImagePage = event.renderer as ImagePage;
 				if(page != null && page.full != null)
 				{
 					//trace("Load full page " + event );
@@ -238,9 +269,14 @@
 				}
 			}
 
-			private function goByLogoLink(): void
+			private function goByLogoLink():void
 			{
 				navigateToURL(new URLRequest( String(conf..logo.@link)), "_blank");
+			}
+
+			private function goByPoweredByLink():void
+			{
+				navigateToURL(new URLRequest( String(conf..poweredby.@link)), "_blank");
 			}
 
 			private function scrollFront(): void
@@ -298,7 +334,7 @@
 
 			public function enableButtonById(buttonID: String, toEnable: Boolean): void
 			{
-				var img: Image = this[buttonID] as Image;
+				var img: SuperImage = this[buttonID] as SuperImage;
 				var spacer: Spacer = this[buttonID + "_spacer"] as Spacer;
 
 				spacer.includeInLayout = toEnable;
@@ -383,21 +419,6 @@
 				}
 			}
 
-			public function btMouseOver( event: MouseEvent ): void
-			{
-				var img: Image = event.currentTarget as Image;
-				if(img.enabled)
-				{
-					img.source = conf.descendants(img.id).@mouseover;
-				}
-			}
-
-			public function btMouseOut( event: MouseEvent ): void
-			{
-				var img: Image = event.currentTarget as Image;
-				img.source = conf.descendants(img.id).@mouseup;
-			}
-
 			public function focusOn(target:*):void
 			{
 				if(landscape.selection.length == 1 && landscape.selection[0] == target)
@@ -428,7 +449,6 @@
 			<VBox height="100%" width="100%">
 				<controls:Zoomer >
 					<l:ImagePage id="frontCover" />
-					<!-- controls:SuperImage id="frontCover" width="100%" height="100%" click="focusOn(event.currentTarget)" / -->
 				</controls:Zoomer>
 			</VBox>
 		</cover>
@@ -436,14 +456,13 @@
 			<VBox height="100%" width="100%">
 				<controls:Zoomer >
 					<l:ImagePage id="backCover" />
-					<!-- controls:SuperImage id="frontCover" width="100%" height="100%" data="{data.@thumb}" click="focusOn(event.currentTarget)" / -->
 				</controls:Zoomer>
 			</VBox>
 		</backCover>
 	</Object>
 
 	<Canvas id="topbar" width="100%" height="40" textAlign="right" >
-		<Image buttonMode="true" source="{conf..logo.@mouseup}" right="0" click="goByLogoLink();" />
+		<controls:SuperImage buttonMode="true" source="{conf..logo.@mouseup}" oversource="{conf..logo.@mouseover}" right="0" click="{goByLogoLink()}" />
 	</Canvas>
 
 	<VBox id="bookarea" width="100%" height="100%" top="40" bottom="36" verticalGap="0">
@@ -460,8 +479,8 @@
 				<!-- PREV NAVS -->
 				<VBox id="navprev" left="33%" height="100%" width="48">
 					<Spacer height="40%" />
-					<Image buttonMode="true" source="{conf..bt_scroll_previous.@mouseup}" click="{scrollPrev()}" />
-					<Image buttonMode="true" source="{conf..bt_scroll_front.@mouseup}" click="{scrollFront()}" />
+					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_previous.@mouseup}" oversource="{conf..bt_scroll_previous.@mouseover}" width="48" height="48" click="{scrollPrev()}" />
+					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_front.@mouseup}" oversource="{conf..bt_scroll_front.@mouseover}" width="48" height="48" click="{scrollFront()}" />
 				</VBox>
 				<!-- PREV NAVS END -->
 
@@ -500,30 +519,32 @@
 				<!-- NEXT NAVS -->
 				<VBox id="navnext" left="66%" height="100%" width="48">
 					<Spacer height="40%" />
-					<Image buttonMode="true" source="{conf..bt_scroll_next.@mouseup}" click="{scrollNext()}" id="bt_next" />
-					<Image buttonMode="true" source="{conf..bt_scroll_last.@mouseup}" click="{scrollLast()}" />
+					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_next.@mouseup}" oversource="{conf..bt_scroll_next.@mouseover}" width="48" height="48" click="{scrollNext()}" />
+					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_last.@mouseup}" oversource="{conf..bt_scroll_last.@mouseover}" width="48" height="48" click="{scrollLast()}" />
 				</VBox>
 				<!-- NEXT NAVS END -->
 			<Spacer width="3%" />
 		</HBox>
 	</VBox>
 
+	<controls:SuperImage buttonMode="true" bottom="36" right="0" width="20" height="159" source="{conf..poweredby.@mouseup}" oversource="{conf..poweredby.@mouseover}" click="goByPoweredByLink();" />
+
 	<HBox id="bottombar" width="100%" height="36" bottom="0" >
 		<Spacer width="5" />
-		<Image source="{conf..bt_index.@mouseup}" id="bt_index" click="{switchIndex(event)}"
-			mouseOver="{btMouseOver(event)}" mouseOut="{btMouseOut(event)}" width="32" enabled="false" visible="false" includeInLayout="false" />
+		<controls:SuperImage source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_index_spacer" width="5" />
-		<Image source="{conf..bt_zoomin.@mouseup}" id="bt_zoomin" click="{zoomIn(event)}"
-			mouseOver="{btMouseOver(event)}" mouseOut="{btMouseOut(event)}" width="32" enabled="false" visible="false" includeInLayout="false" />
+		<controls:SuperImage source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomin_spacer" width="5" />
-		<Image source="{conf..bt_zoomout.@mouseup}" id="bt_zoomout" click="{zoomOut(event)}"
-			mouseOver="{btMouseOver(event)}" mouseOut="{btMouseOut(event)}" width="32" enabled="false" visible="false" includeInLayout="false" />
+		<controls:SuperImage source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomout_spacer" width="5" />
-		<Image source="{conf..bt_download.@mouseup}" id="bt_download" click="{downloadPDFDoc(event)}"
-			mouseOver="{btMouseOver(event)}" mouseOut="{btMouseOut(event)}" width="32" enabled="false" visible="false" includeInLayout="false" />
+		<controls:SuperImage source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_download_spacer" width="5" />
-		<Image source="{conf..bt_helpscreen.@mouseup}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
-			mouseOver="{btMouseOver(event)}" mouseOut="{btMouseOut(event)}" width="32" enabled="false" visible="false" includeInLayout="false" />
+		<controls:SuperImage source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_helpscreen_spacer" width="5" />
 	</HBox>
 

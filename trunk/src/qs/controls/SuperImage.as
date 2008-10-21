@@ -16,21 +16,23 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package qs.controls
 {
-	import mx.core.UIComponent;
-	import flash.display.DisplayObject;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.system.ApplicationDomain;
+	import flash.display.DisplayObject;
 	import flash.display.Loader;
-	import mx.rpc.soap.LoadEvent;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
-	import mx.skins.RectangularBorder;
+	import flash.system.ApplicationDomain;
+
 	import mx.core.EdgeMetrics;
-	import qs.caching.ContentCache;
 	import mx.core.IDataRenderer;
-	
+	import mx.core.UIComponent;
+	import mx.skins.RectangularBorder;
+
+	import qs.caching.ContentCache;
+
 
 [Style(name="backgroundAlpha", type="Number", inherit="no")]
 [Style(name="backgroundColor", type="uint", format="Color", inherit="no")]
@@ -53,7 +55,7 @@ package qs.controls
 */
 public class SuperImage extends UIComponent implements IDataRenderer
 {
-	
+
 
 /*--------------------------------------------------------------------------------------------------------------------
 *  Constructor
@@ -69,6 +71,8 @@ public class SuperImage extends UIComponent implements IDataRenderer
 *  Private Properties
 *-------------------------------------------------------------------------------------------------------------------*/
 	private var _source:*;
+	private var _upsource:*; // Rost: added to support image buttons
+	private var _oversource:*; // Rost: added to support image buttons
 	private var _oldSource:*;
 	private var _sourceChanged:Boolean = false;
 	private var _content:DisplayObject;
@@ -76,11 +80,11 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	private var _maintainAspectRatio:Boolean = true;
 	private var _border:RectangularBorder;
 	private var _loadedFromCache:Boolean = false;
-	
+
 /*--------------------------------------------------------------------------------------------------------------------
 *  Public Properties
 *-------------------------------------------------------------------------------------------------------------------*/
-	
+
 	[Bindable] public function set maintainAspectRatio(value:Boolean):void
 	{
 		_maintainAspectRatio = value;
@@ -103,7 +107,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	{
 		return _cacheName;
 	}
-	
+
 	/** What to display. Options are:  Bitmap, BitmapData, url, URLRequest, or a Class or ClassName that when instantiated matches one of the other
 	* 	options.
 	*/
@@ -111,22 +115,61 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	{
 		if(value == _source)
 			return;
-			
+
 		if(_content is Loader)
 		{
 			Loader(_content).contentLoaderInfo.removeEventListener(Event.COMPLETE,loadCompleteHandler);
 			Loader(_content).contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,loadErrorHandler);
 		}
-		
+
+		// Rost: to implement image button
+		_upsource = value;
+
 		_source = value;
 		_sourceChanged = true;
 		invalidateProperties();
 	}
-	
+
 	public function get source():*
 	{
 		return _source;
 	}
+
+	// Rost: added to support image buttons
+	/** What to display. Options are:  Bitmap, BitmapData, url, URLRequest, or a Class or ClassName that when instantiated matches one of the other
+	* 	options.
+	*/
+	[Bindable] public function set oversource(value:*):void
+	{
+		_oversource = value;
+
+		addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
+		addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
+
+		invalidateProperties();
+	}
+
+	// Rost: to implement image button
+	private function mouseOverHandler(event:MouseEvent):void
+	{
+		_source = _oversource;
+		_sourceChanged = true;
+		invalidateProperties();
+	}
+
+	// Rost: to implement image button
+	private function mouseOutHandler(event:MouseEvent):void
+	{
+		_source = _upsource;
+		_sourceChanged = true;
+		invalidateProperties();
+	}
+
+	public function get oversource():*
+	{
+		return _oversource;
+	}
+
 	[Bindable] public function set data(value:Object):void
 	{
 		source = value;
@@ -135,7 +178,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	{
 		return source;
 	}
-	
+
 
 /*--------------------------------------------------------------------------------------------------------------------
 *  private methods
@@ -165,18 +208,18 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			if(_content != null)
 			{
 				// remove any old content.
-				removeChild(_content);					
+				removeChild(_content);
 			}
 			_loadedFromCache = false;
 			_content = null;
-			
+
 			// now examine our source property and convert it into something we can render.
 			var newSource:* = _source;
 			if (newSource is XML || newSource is XMLList)
 			{
 				newSource = newSource.toString();
 			}
-			
+
 			if (newSource is String)
 			{
 				// first check and see if its the name of a class.
@@ -192,7 +235,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				// if it's a class, instantiate it.
 				newSource = new newSource();
 			}
-			
+
 			// if it's bitmap or bitmap data, we know how to render that.
 			if(newSource is Bitmap)
 			{
@@ -202,12 +245,12 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			{
 				_content = new Bitmap(newSource);
 			}
-			
+
 			else if (newSource is String || newSource is URLRequest)
 			{
-				// it's an url that needs to be loaded.	
+				// it's an url that needs to be loaded.
 				var cachedContent:DisplayObject;
-				
+
 				if(_cacheName == null)
 				{
 					// if we don't have a cache, just load it up into a loader.
@@ -238,14 +281,14 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				_content = cachedContent;
 			}
 			_oldSource = newSource;
-			
+
 			if(_content != null)
 				addChild(_content);
 			invalidateSize();
 			invalidateDisplayList();
 		}
 	}
-	
+
 	private function loadCompleteHandler(e:Event):void
 	{
 		invalidateSize();
@@ -256,8 +299,8 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	private function loadErrorHandler(e:Event):void
 	{
 	}
-	
-	
+
+
 	override protected function measure():void
 	{
 		var contentWidth:Number;
@@ -277,7 +320,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			contentWidth = 0;
 			contentHeight = 0;
 			var metrics:EdgeMetrics;
-			
+
 			if(_border != null)
 			{
 				// if we have a border, first find out how big our border is.
@@ -291,7 +334,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 					contentWidth = Loader(_content).contentLoaderInfo.width;
 					contentHeight = Loader(_content).contentLoaderInfo.height;
 				} catch(e:Error) {
-				
+
 				}
 			}
 			else
@@ -300,7 +343,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				contentWidth = _content.width / _content.scaleX;
 				contentHeight = _content.height / _content.scaleY;
 			}
-			
+
 			if(contentWidth > 0 && contentHeight > 0)
 			{
 				// now adjust to maintain aspect ratio.
@@ -311,7 +354,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 						// if we have a percent width
 						if(isNaN(percentHeight) && isNaN(explicitHeight))
 						{
-							// and no explicit size, assume that our current width is our final width, and 
+							// and no explicit size, assume that our current width is our final width, and
 							// report an appropriate height. If it's not our final width, we'll come back through this codepath later to adjust.
 							contentHeight = (unscaledWidth - metrics.left - metrics.right)/contentWidth * contentHeight;
 						}
@@ -325,7 +368,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 							contentWidth = (unscaledHeight - metrics.top - metrics.bottom)/contentHeight * contentWidth;
 						}
 					}
-					// if we have an explicit width or height but not both, we're pretty sure we're going to end up at that width/height, and 
+					// if we have an explicit width or height but not both, we're pretty sure we're going to end up at that width/height, and
 					// the other dimension will be whatever our measured size is.  So report our measured sizes based on that explicit size.
 					if(!isNaN(explicitWidth))
 					{
@@ -339,10 +382,10 @@ public class SuperImage extends UIComponent implements IDataRenderer
 						contentWidth = (explicitHeight - metrics.top - metrics.bottom)/contentHeight * contentWidth;
 					}
 				}
-			}				
-		}	
+			}
+		}
 		if(!isNaN(contentWidth) || !isNaN(contentHeight))
-		{		
+		{
 			// add in the size of our border.
 			if(metrics != null)
 			{
@@ -353,7 +396,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			measuredHeight = contentHeight;
 		}
 	}
-	
+
 	override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 	{
 		if(_content != null)
@@ -368,26 +411,26 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				contentWidth -= borderMetrics.left + borderMetrics.right;
 				contentHeight -= borderMetrics.top + borderMetrics.bottom;
 			}
-			
+
 			if(_maintainAspectRatio)
 			{
-				var myAR:Number = contentWidth/contentHeight;			
+				var myAR:Number = contentWidth/contentHeight;
 				// if we've scaled content down to 0, it will have 0 scale. We don't want that, so let's reset it.
 				_content.width = _content.height = 100;
 				var contentAR:Number = (_content.width / _content.scaleX) / (_content.height / _content.scaleY);
 				if(!isNaN(contentAR))
-				{						
+				{
 					if(contentAR > myAR)
 					{
 						_content.width = contentWidth;
-						_content.height = contentHeight = contentWidth / contentAR;						
+						_content.height = contentHeight = contentWidth / contentAR;
 					}
 					else
 					{
 						_content.height = contentHeight;
 						_content.width = contentWidth = contentHeight * contentAR;
 					}
-				
+
 					if(!isNaN(percentWidth))
 					{
 						if(isNaN(percentHeight) && isNaN(explicitHeight))
@@ -401,25 +444,25 @@ public class SuperImage extends UIComponent implements IDataRenderer
 						if(isNaN(percentWidth) && isNaN(explicitWidth))
 						{
 							if(myAR != contentAR)
-								invalidateSize();								
+								invalidateSize();
 						}
 					}
 				}
-				
-				
+
+
 			}
 			else
 			{
 				_content.width = contentWidth;
 				_content.height = contentHeight;
-			}				
+			}
 			if(_border != null)
 			{
 				_border.setActualSize(contentWidth + borderMetrics.left + borderMetrics.right,
 										contentHeight + borderMetrics.top + borderMetrics.bottom);
 				_content.x = borderMetrics.left;
 				_content.y = borderMetrics.top;
-				
+
 			}
 			else
 			{
@@ -433,7 +476,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			if(_border != null)
 				_border.visible = false;
 		}
-		
+
 	}
 }
 }
