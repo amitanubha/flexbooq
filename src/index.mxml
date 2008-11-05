@@ -34,6 +34,7 @@
 
 	<Script>
 		<![CDATA[
+			import mx.core.UIComponentCachePolicy;
 			import qs.controls.SuperImage;
 			import fcat.events.BookEvent;
 			import fr.model.vo.BookPageVO;
@@ -52,7 +53,11 @@
 			import qs.caching.ContentCache;
 			import qs.controls.flexBookClasses.FlexBookEvent;
 
-			import mx.core.UIComponent;
+			[Embed (source="assets/CursorZoomIn.swf")]
+			public var cursorZoomIn: Class;
+
+			[Embed (source="assets/CursorZoomOut.swf")]
+			public var cursorZoomOut: Class;
 
 			private var bookAspectRatio: Number;
 
@@ -323,6 +328,31 @@
 				book.turnToPage( pageToTurnTo );
 			}
 
+			private function downloadPDFDoc(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					var pageIndex: int = book.pageToContentIndex(book.currentPageIndex) + 3;
+					var downloadLink: String = String(conf..page.(@id==pageIndex).@download);
+
+					if (pageIndex==1)
+					{
+						downloadLink = String(conf..cover.(@id==pageIndex).@download)
+					}
+
+					if(downloadLink != "")
+					{
+						trace(" Download page: " + pageIndex + ", pdf link: " + downloadLink );
+						navigateToURL( new URLRequest( downloadLink ), "_blank" );
+					}
+					else
+					{
+						showWarning(" Download page error: Тo link to the page provided." );
+					}
+				}
+			}
+
+
 			////////////////////////////////////////////////////////////////////
 			// Utilities
 			////////////////////////////////////////////////////////////////////
@@ -335,6 +365,7 @@
 			{
 				trace(message);
 			}
+
 
 			////////////////////////////////////////////////////////////////////
 			// Menu button actions
@@ -363,15 +394,47 @@
 				}
 			}
 
-			private function zoomIn(event: MouseEvent): void
+			private var zoomedIn: Boolean = false;
+
+			public function zoomFromPageClick(event: MouseEvent): void
+			{
+				if(!zoomedIn)
+				/* {
+					trace("Zoom book out");
+					focusOn( book );
+					book.mouseChildren = true;
+					zoomedIn = false;
+				}
+				else */
+				{
+					trace("Zoom book in");
+					showBookNavigation(false);
+
+					focusOn( event.currentTarget );
+					book.mouseChildren = false;
+					zoomedIn = true;
+				}
+			}
+
+			public function zoomIn(event: MouseEvent): void
 			{
 				if(event.currentTarget.enabled)
 				{
-					var target: * = book.currentPage.rightRenderer;
+					var target: * = bookCanvas;
+					if(book.currentPage.leftRenderer == null && book.currentPage.rightRenderer != null)
+					{
+						target = book.currentPage.rightRenderer;
+					}
+					else if(book.currentPage.rightRenderer == null && book.currentPage.leftRenderer != null)
+					{
+						target = book.currentPage.leftRenderer;
+					}
 
 					if(landscape.selection.length == 0 || landscape.selection[0] != target)
 					{
 						showStatus("Zoom in");
+						showBookNavigation(false);
+
 						book.mouseEnabled = false;
 						book.mouseChildren = false;
 						focusOn( target );
@@ -383,15 +446,41 @@
 			{
 				if(event.currentTarget.enabled)
 				{
-					var target: * = book.currentPage.rightRenderer;
+					var target: * = bookCanvas;
+					if(book.currentPage.leftRenderer == null)
+					{
+						target = book.currentPage.rightRenderer;
+					}
+					else if(book.currentPage.rightRenderer == null)
+					{
+						target = book.currentPage.leftRenderer;
+					}
 
-					if(landscape.selection.length == 1 && landscape.selection[0] == target)
+					if(landscape.selection.length == 1 && landscape.selection[0] == target || target == bookCanvas)
 					{
 						showStatus("Zoom out");
+						showBookNavigation(true);
+
 						book.mouseEnabled = true;
 						book.mouseChildren = true;
 						focusOn( book )
 					}
+				}
+			}
+
+			private function landscapeZoomCompleteHandler(event:BookEvent):void
+			{
+				//trace("landscapeZoomCompleteHandler: " + event.isZoomedIn );
+				zoomedIn = event.isZoomedIn;
+				if(event.isZoomedIn)
+				{
+					book.filters = [];
+					book.addEventListener(MouseEvent.CLICK, zoomOut);
+				}
+				else
+				{
+					book.filters = [bookShadow];
+					book.removeEventListener(MouseEvent.CLICK, zoomOut);
 				}
 			}
 
@@ -403,37 +492,54 @@
 				}
 			}
 
-			private function downloadPDFDoc(event: MouseEvent): void
-			{
-				if(event.currentTarget.enabled)
-				{
-					var pageIndex: int = book.pageToContentIndex(book.currentPageIndex) + 3;
-					var downloadLink: String = String(conf..page.(@id==pageIndex).@download);
-
-					if (pageIndex==1)
-					{
-						downloadLink = String(conf..cover.(@id==pageIndex).@download)
-					}
-
-					if(downloadLink != "")
-					{
-						trace(" Download page: " + pageIndex + ", pdf link: " + downloadLink );
-						navigateToURL( new URLRequest( downloadLink ), "_blank" );
-					}
-					else
-					{
-						showWarning(" Download page error: no link to the page provided." );
-					}
-				}
-			}
-
 			public function focusOn(target:*):void
 			{
 				if(landscape.selection.length == 1 && landscape.selection[0] == target)
+				{
 					landscape.selection = [];
+				}
 				else
+				{
 					landscape.selection = [target];
+				}
 			}
+
+			public function setMouseCursor(cursorName:String):void
+			{
+				if(cursorName == 'CursorZoom')
+				{
+					if(zoomedIn)
+					{
+						cursorManager.setCursor( cursorZoomOut );
+					}
+					else
+					{
+						cursorManager.setCursor( cursorZoomIn );
+					}
+				}
+				else
+				{
+					cursorManager.removeAllCursors();
+				}
+
+				//trace("Set cursor: " + cursorName);
+			}
+
+			private function showBookNavigation(toShow:Boolean):void
+			{
+				bt_scroll_front.visible = toShow;
+				bt_scroll_last.visible = toShow;
+				bt_scroll_next.visible = toShow;
+				bt_scroll_previous.visible = toShow;
+
+				fastnavigation.visible = toShow;
+
+				if( !toShow )
+				{
+					book.filters = [];
+				}
+			}
+
 
 		]]>
 	</Script>
@@ -456,14 +562,14 @@
 		<cover>
 			<VBox height="100%" width="100%">
 				<controls:Zoomer >
-					<l:ImagePage id="frontCover" />
+					<l:ImagePage id="frontCover" click="{zoomFromPageClick(event)}" />
 				</controls:Zoomer>
 			</VBox>
 		</cover>
 		<backCover>
 			<VBox height="100%" width="100%">
 				<controls:Zoomer >
-					<l:ImagePage id="backCover" />
+					<l:ImagePage id="backCover" click="{zoomFromPageClick(event)}" />
 				</controls:Zoomer>
 			</VBox>
 		</backCover>
@@ -487,8 +593,8 @@
 				<!-- PREV NAVS -->
 				<VBox id="navprev" left="33%" height="100%" width="48">
 					<Spacer height="40%" />
-					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_previous.@mouseup}" oversource="{conf..bt_scroll_previous.@mouseover}" width="48" height="48" click="{scrollPrev()}" />
-					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_front.@mouseup}" oversource="{conf..bt_scroll_front.@mouseover}" width="48" height="48" click="{scrollFront()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_previous" source="{conf..bt_scroll_previous.@mouseup}" oversource="{conf..bt_scroll_previous.@mouseover}" width="48" height="48" click="{scrollPrev()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_front" source="{conf..bt_scroll_front.@mouseup}" oversource="{conf..bt_scroll_front.@mouseover}" width="48" height="48" click="{scrollFront()}" />
 				</VBox>
 				<!-- PREV NAVS END -->
 
@@ -497,10 +603,12 @@
 					paddingLeft="0" paddingTop="0" paddingBottom="20" paddingRight="0"
 					zoomLimit="3"
 					clipContent="false"
-					cachePolicy="off" >
+					cachePolicy="off" pageZoomComplete="landscapeZoomCompleteHandler(event);" >
 
 				<Canvas id="bookCanvas" width="100%" height="100%" resize="{bookCanvasResizeHandler(event)}" >
-					<controls:FlexBook id="book" y="47" width="50" height="25"
+					<controls:FlexBook
+						mouseOver="setMouseCursor('CursorZoom');" mouseOut="setMouseCursor('default');"
+						id="book" y="47" width="50" height="25"
 						animateCurrentPageIndex="true" animatePagesOnTurn="true"
 						showCornerTease="true" activeGrabArea="corner"
 						edgeAndCornerSize="10"
@@ -513,7 +621,7 @@
 						<Component>
 							<!-- Canvas height="100%" width="100%" backgroundColor="0xffcc00">
 								<controls:Zoomer width="100%" height="100%" -->
-								<l:ImagePage />
+								<l:ImagePage click="outerDocument.zoomFromPageClick(event)" />
 								<!-- controls:SuperImage width="100%" height="100%" data="{data.thumb}" click="outerDocument.focusOn(event.currentTarget)" / -->
 								<!-- /controls:Zoomer>
 							</Canvas  -->
@@ -527,8 +635,8 @@
 				<!-- NEXT NAVS -->
 				<VBox id="navnext" left="66%" height="100%" width="48">
 					<Spacer height="40%" />
-					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_next.@mouseup}" oversource="{conf..bt_scroll_next.@mouseover}" width="48" height="48" click="{scrollNext()}" />
-					<controls:SuperImage buttonMode="true" source="{conf..bt_scroll_last.@mouseup}" oversource="{conf..bt_scroll_last.@mouseover}" width="48" height="48" click="{scrollLast()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_next" source="{conf..bt_scroll_next.@mouseup}" oversource="{conf..bt_scroll_next.@mouseover}" width="48" height="48" click="{scrollNext()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_last" source="{conf..bt_scroll_last.@mouseup}" oversource="{conf..bt_scroll_last.@mouseover}" width="48" height="48" click="{scrollLast()}" />
 				</VBox>
 				<!-- NEXT NAVS END -->
 			<Spacer width="3%" />

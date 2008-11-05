@@ -27,11 +27,11 @@ package qs.utils
 import flash.geom.Point;
 	
 
-public class Vector
+public class VectorQS
 {
 	public var p1:Point;
 	public var p0:Point;
-	public function Vector(p0:Point,p1:Point):void
+	public function VectorQS(p0:Point,p1:Point):void
 	{
 		this.p0 = p0.clone();
 		this.p1 = p1.clone();
@@ -74,9 +74,9 @@ public class Vector
 		p1 = tmp;
 	}
 	
-	public function clone():Vector
+	public function clone():VectorQS
 	{
-		return new Vector(p0,p1);
+		return new VectorQS(p0,p1);
 	}
 	public function get x():Number
 	{
@@ -107,12 +107,12 @@ public class Vector
 		var t:Number = (value-p0.x)/x;
 		return p0.y + t*y;
 	}
-	public function add(v:Vector):void
+	public function add(v:VectorQS):void
 	{
 		p1.x += v.x;
 		p1.y += v.y;		
 	}
-	public function dot(v:Vector):Number
+	public function dot(v:VectorQS):Number
 	{
 		return x * v.x + y * v.y;
 	}
@@ -121,7 +121,7 @@ public class Vector
 		x *= v;
 		y *= v;
 	}
-	public function reflect(n:Vector):void
+	public function reflect(n:VectorQS):void
 	{
 		n = n.clone();
 		n.mult(2 * dot(n));
