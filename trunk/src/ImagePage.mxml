@@ -40,7 +40,7 @@
 
 	<transitions>
 		<Transition fromState="" toState="loadingState">
-				<Fade alphaTo="1" target="{loadingContent}" duration="300"/>
+				<Fade alphaTo="1" target="{loadingContent}" duration="400"/>
 		</Transition>
 		<Transition toState="" fromState="loadingState">
 			<Sequence>
@@ -52,6 +52,8 @@
 
 	<Script>
 		<![CDATA[
+			import mx.effects.easing.Bounce;
+			import mx.states.Transition;
 			import qs.caching.ContentCache;
 			//mx.core.Singleton.registerClass("mx.styles::IStyleManager2", Class(ApplicationDomain.currentDomain.getDefinition("mx.styles::StyleManagerImpl")));
 

@@ -16,6 +16,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 package qs.containers
 {
+	import fcat.events.BookEvent;
+
 	import flash.display.Shape;
 	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
@@ -34,6 +36,8 @@ package qs.containers
 	[Style(name="paddingRight", type="Number", inherit="no")]
 	[Style(name="paddingBottom", type="Number", inherit="no")]
 	[Style(name="zoomLimit", type="String", inherit="no")]
+
+	[Event(name="pageZoomComplete",type="fcat.events.BookEvent")]
 
 	[DefaultProperty("children")]
 	public class Landscape extends UIComponent
@@ -173,7 +177,7 @@ package qs.containers
 
 		// Rost: flag added to allow switching from high-scaled state back to normal
 		// in the calculateMatrixForDescendants method.
-		private var isScaled: Boolean = false;
+		private var isZoomedIn: Boolean = false;
 
 		// given an array of descendants, calculate the scale and translation factors for the content pane
 		// that will display those children as large as possible, centered.
@@ -283,7 +287,7 @@ package qs.containers
 					case "100%":
 					default:
 						//scale = Math.min(scale,1);
-						if(isScaled)
+						if(isZoomedIn)
 						{
 							Math.min(scale,1);
 						}
@@ -295,8 +299,8 @@ package qs.containers
 				}
 				if(	switchScaledState == true )
 				{
-					isScaled = !isScaled;
-					//trace("Scale to: " + scale + ", is scaled=" + isScaled);
+					isZoomedIn = !isZoomedIn;
+					//trace("Scale to: " + scale + ", is scaled=" + isZoomedIn);
 				}
 
 				// To update object coordinates according to mouse position
@@ -402,13 +406,18 @@ package qs.containers
 		private function completeLayout():void
 		{
 			switchPanning();
-			//trace("Animation is finished.");
+			trace("Animation is finished. Book is zoomed in: " + isZoomedIn);
+
+			var event: BookEvent = new BookEvent(BookEvent.PAGE_ZOOM_COMPLETE, true);
+			event.isZoomedIn = isZoomedIn;
+
+			dispatchEvent(event);
 		}
 
 		// Rost: we want Landscape to be able to pan childrens too
 		private function switchPanning():void
 		{
-			if(isScaled)
+			if(isZoomedIn)
 			{
 				if(!systemManager.hasEventListener(MouseEvent.MOUSE_MOVE))
 				{
@@ -426,7 +435,7 @@ package qs.containers
 
 		private function mouseMoveHandler(event: MouseEvent):void
 		{
-			if(isScaled)
+			if(isZoomedIn)
 			{
 				calculateMatrixForDescendants(_selection, false, true);
 				_animator.invalidateLayout();

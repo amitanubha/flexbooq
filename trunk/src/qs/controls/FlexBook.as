@@ -49,7 +49,7 @@ package qs.controls
 
 	import qs.controls.flexBookClasses.FlexBookEvent;
 	import qs.controls.flexBookClasses.FlexBookPage;
-	import qs.utils.Vector;
+	import qs.utils.VectorQS;
 
 	[Style(name="activeGrabArea", type="String", enumeration="corners,edge,page,none", inherit="no")]
 	[Style(name="edgeAndCornerSize", type="Number")]
@@ -1230,7 +1230,7 @@ package qs.controls
 		private function setupForFlip(x:Number,y:Number,targetPageIndex:Number = NaN):void
 		{
 			var code:Number = getCornerCode(x,y);
-			var delta:Vector;
+			var delta:VectorQS;
 
 			switch(code)
 			{
@@ -1295,11 +1295,11 @@ package qs.controls
 			{
 				if (_pointOfOriginalGrab.x > _hCenter)
 				{
-					delta = new Vector(new Point(x,_pointOfOriginalGrab.y),new Point(x+10,_pointOfOriginalGrab.y+1));
+					delta = new VectorQS(new Point(x,_pointOfOriginalGrab.y),new Point(x+10,_pointOfOriginalGrab.y+1));
 				}
 				else
 				{
-					delta = new Vector(new Point(x,_pointOfOriginalGrab.y),new Point(x-10,_pointOfOriginalGrab.y+1));
+					delta = new VectorQS(new Point(x,_pointOfOriginalGrab.y),new Point(x-10,_pointOfOriginalGrab.y+1));
 				}
 				_pointOfOriginalGrab.y = Math.min(_pageBottom,delta.yForX(_pointOfOriginalGrab.x));
 			}
@@ -1307,11 +1307,11 @@ package qs.controls
 			{
 				if (_pointOfOriginalGrab.x > _hCenter)
 				{
-					delta = new Vector(new Point(x,_pointOfOriginalGrab.y),new Point(x+10,_pointOfOriginalGrab.y-1));
+					delta = new VectorQS(new Point(x,_pointOfOriginalGrab.y),new Point(x+10,_pointOfOriginalGrab.y-1));
 				}
 				else
 				{
-					delta = new Vector(new Point(x,_pointOfOriginalGrab.y),new Point(x-10,_pointOfOriginalGrab.y-1));
+					delta = new VectorQS(new Point(x,_pointOfOriginalGrab.y),new Point(x-10,_pointOfOriginalGrab.y-1));
 				}
 				_pointOfOriginalGrab.y = Math.max(_pageTop,delta.yForX(_pointOfOriginalGrab.x));
 			}
@@ -1777,18 +1777,18 @@ package qs.controls
 			var bottomCorner:Point = new Point(hPageEdge,_pageHeight);
 			var bottomOppositeCorner:Point = new Point(hOppositePageEdge,_pageHeight);
 
-			var anchorToDragPt:Vector;
+			var anchorToDragPt:VectorQS;
 			var dragDistanceFromAnchor:Number;
 
 			if(dragPt.y <= grabPt.y)
 			{
 
-				maxDistanceFromAnchor = new Vector(bottomAnchor,grabPt).length;
+				maxDistanceFromAnchor = new VectorQS(bottomAnchor,grabPt).length;
 				// the user has dragged up
 
 				// make sure we can't pull so far we'd tear the page.  If that happens, just adjust our drag pt and
 				// behave as though we weren't pulling father.
-				anchorToDragPt = new Vector(bottomAnchor,dragPt);
+				anchorToDragPt = new VectorQS(bottomAnchor,dragPt);
 				dragDistanceFromAnchor = anchorToDragPt.length;
 
 				if (dragDistanceFromAnchor > maxDistanceFromAnchor)
@@ -1803,11 +1803,11 @@ package qs.controls
 			{
 				// the user has dragged down
 
-				maxDistanceFromAnchor = new Vector(topAnchor,grabPt).length;
+				maxDistanceFromAnchor = new VectorQS(topAnchor,grabPt).length;
 
 				// make sure we can't pull so far we'd tear the page.  If that happens, just adjust our drag pt and
 				// behave as though we weren't pulling father.
-				anchorToDragPt = new Vector(topAnchor,dragPt);
+				anchorToDragPt = new VectorQS(topAnchor,dragPt);
 				dragDistanceFromAnchor = anchorToDragPt.length;
 
 				if (dragDistanceFromAnchor > maxDistanceFromAnchor)
@@ -1820,11 +1820,11 @@ package qs.controls
 
 
 
-			var dragToStart:Vector = new Vector(dragPt,grabPt);
+			var dragToStart:VectorQS = new VectorQS(dragPt,grabPt);
 
 
 			//determine the normalize vector for the fold.
-			var fold:Vector = dragToStart.clone();
+			var fold:VectorQS = dragToStart.clone();
 			fold.length /= 2;
 			var dragToStartCenter:Point = fold.p1.clone();
 			fold.perp();
@@ -1843,7 +1843,7 @@ package qs.controls
 
 			if(Math.abs(foldIntersectionWithTop - _hCenter)  < Math.abs(hPageEdge - _hCenter))
 			{
-				var topEdge:Vector = new Vector(new Point(foldIntersectionWithTop,_pageTop), topCorner);
+				var topEdge:VectorQS = new VectorQS(new Point(foldIntersectionWithTop,_pageTop), topCorner);
 				topEdge.reflect(fold);
 				foldTopLeft = virtualPageTopLeft = topEdge.p1;
 				foldTopRight = topEdge.p0;
@@ -1851,7 +1851,7 @@ package qs.controls
 			else
 			{
 				foldTopLeft = foldTopRight = new Point(hPageEdge,fold.yForX(hPageEdge));
-				var foldExtension:Vector = new Vector(foldTopLeft, topCorner);
+				var foldExtension:VectorQS = new VectorQS(foldTopLeft, topCorner);
 				foldExtension.reflect(fold);
 				virtualPageTopLeft = foldExtension.p1;
 			}
@@ -1859,7 +1859,7 @@ package qs.controls
 			var foldIntersectionWithBottom:Number = fold.xForY(_pageHeight);
 			if (Math.abs(foldIntersectionWithBottom - _hCenter) < Math.abs(hPageEdge - _hCenter))
 			{
-				var bottomEdge:Vector = new Vector(new Point(foldIntersectionWithBottom,_pageHeight),bottomCorner);
+				var bottomEdge:VectorQS = new VectorQS(new Point(foldIntersectionWithBottom,_pageHeight),bottomCorner);
 				bottomEdge.reflect(fold);
 				foldBottomLeft = bottomEdge.p1;
 				foldBottomRight = bottomEdge.p0;
@@ -1907,13 +1907,13 @@ package qs.controls
 				revealedPagePoly.push(bottomCorner);
 			revealedPagePoly.push(foldBottomRight);
 
-			var leadingEdge:Vector;
-			var shortPageEdge:Vector;
+			var leadingEdge:VectorQS;
+			var shortPageEdge:VectorQS;
 
 
 			if(_turnDirection == TURN_DIRECTION_FORWARD)
 			{
-				leadingEdge = new Vector(foldBottomLeft,foldTopLeft);
+				leadingEdge = new VectorQS(foldBottomLeft,foldTopLeft);
 			}
 			else if(_turnDirection == TURN_DIRECTION_BACKWARDS)
 			{
@@ -1925,7 +1925,7 @@ package qs.controls
 				foldBottomLeft = foldBottomRight;
 				foldBottomRight = tmpP;
 
-				leadingEdge = new Vector(foldBottomRight,foldTopRight);
+				leadingEdge = new VectorQS(foldBottomRight,foldTopRight);
 				shortPageEdge = leadingEdge.clone();
 				shortPageEdge.perp();
 				shortPageEdge.length = _pageWidth;
@@ -1999,14 +1999,14 @@ package qs.controls
 			drawPoly(g,topTurningPagePoly);
 			g.endFill();
 
-			var centerToDrag:Vector;
+			var centerToDrag:VectorQS;
 			var len:Number;
 
 			if(dragToStart.length2 > .1)
 			{
 
 				// draw the shadow cast on the top pages by the turned page
-				centerToDrag = new Vector(dragToStartCenter,dragPt);
+				centerToDrag = new VectorQS(dragToStartCenter,dragPt);
 				m.identity();
 				len = centerToDrag.length * 1.2
 				if(len > 10)
@@ -2038,7 +2038,7 @@ package qs.controls
 
 
 				// draw the shadow being cast onto the revealed page
-				var centerToGrab:Vector = new Vector(dragToStartCenter,grabPt);
+				var centerToGrab:VectorQS = new VectorQS(dragToStartCenter,grabPt);
 				m.identity();
 				var boxLen:Number = centerToGrab.length;
 
@@ -2083,7 +2083,7 @@ package qs.controls
 					g.endFill();
 
 					// draw the curvature gradient on the underside of the turned page
-					centerToDrag = new Vector(dragToStartCenter,dragPt);
+					centerToDrag = new VectorQS(dragToStartCenter,dragPt);
 					len = centerToDrag.length;
 					if(len > 10)
 					{

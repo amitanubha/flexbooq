@@ -38,7 +38,7 @@ package qs.controls {
 		private const SCALE_TOLERANCE:Number = .01;
 		private const ALPHA_TOLERANCE:Number = .01;
 		private const TRANSLATE_TOLERANCE:Number = .5;
-		private const DEFAULT_ANIMATION_SPEED:Number = .25;
+		private const DEFAULT_ANIMATION_SPEED:Number = .35;
 		private const SIZE_TOLERANCE:Number = .5;
 		private var _priorityInvalid:Boolean = true;
 		public var completeFunction:Function;
