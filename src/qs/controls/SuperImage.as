@@ -20,6 +20,7 @@ package qs.controls
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
@@ -278,7 +279,10 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				{
 					dispatchEvent(new Event(Event.COMPLETE));
 				}
-				_content = cachedContent;
+
+				//_content = cachedContent;
+
+				_content = getSmoothedContent(cachedContent as DisplayObject);
 			}
 			_oldSource = newSource;
 
@@ -287,6 +291,30 @@ public class SuperImage extends UIComponent implements IDataRenderer
 			invalidateSize();
 			invalidateDisplayList();
 		}
+	}
+
+	private function getSmoothedContent(source: DisplayObject): DisplayObject
+	{
+		var bData: BitmapData;
+		var result: DisplayObject;
+		if( source != null && source.width > 0 && source.height > 0 )
+		{
+		 	bData = new BitmapData(source.width, source.height, true, 0x66778899 );
+		 	bData.draw(source, null, null, null, null, true);
+
+			var spr: Sprite = new Sprite();
+			spr.graphics.beginBitmapFill(bData, null, false, true );
+		 	spr.graphics.drawRect(0, 0, source.width, source.height);
+		 	spr.graphics.endFill();
+
+		 	result = spr as DisplayObject;
+		}
+		else
+		{
+			result = source;
+		}
+
+		return result;
 	}
 
 	private function loadCompleteHandler(e:Event):void
