@@ -1160,8 +1160,16 @@ package qs.controls
 			return result;
 		}
 
+		private var savedCursorID: int;
+
 		private function trackCornerHandler(e:MouseEvent):void
 		{
+
+					savedCursorID = cursorManager.currentCursorID;
+					trace("saved cursor: " + savedCursorID );
+					cursorManager.removeAllCursors();
+
+					buttonMode = true;
 
 			if(_state == STATE_NONE)
 			{
