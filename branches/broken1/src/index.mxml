@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application backgroundGradientAlphas="0,0" backgroundColor="0x000000" xmlns="http://www.adobe.com/2006/mxml" xmlns:l="*"
+	layout="absolute"
+	backgroundGradientColors="[#000000, #000000]"
+	preloader="preload.CustomPreloader"
+	xmlns:controls="qs.controls.*"
+	creationComplete="{initApp();}" xmlns:containers="qs.containers.*" xmlns:effects="qs.effects.*"
+	xmlns:itemRenderers="fcat.view.itemRenderers.*" xmlns:controls1="fr.view.controls.*">
+
+	<!--
+	Copyright (c) 2006 Adobe Systems Incorporated
+
+	Permission is hereby granted, free of charge, to any person
+	obtaining a copy of this software and associated documentation
+	files (the "Software"), to deal in the Software without
+	restriction, including without limitation the rights to use,
+	copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the
+	Software is furnished to do so, subject to the following
+	conditions:
+
+	The above copyright notice and this permission notice shall be
+	included in all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+	OTHER DEALINGS IN THE SOFTWARE.
+	-->
+
+	<Script>
+		<![CDATA[
+			import mx.core.UIComponentCachePolicy;
+			import qs.controls.SuperImage;
+			import fcat.events.BookEvent;
+			import fr.model.vo.BookPageVO;
+			import mx.collections.ArrayCollection;
+			import mx.events.ResizeEvent;
+			import mx.controls.Spacer;
+			import com.asfusion.mate.actions.AbstractAction;
+			import flash.net.navigateToURL;
+			import mx.utils.URLUtil;
+			import mx.core.FlexSimpleButton;
+			import mx.events.FlexEvent;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.binding.utils.BindingUtils;
+			import qs.controls.FlexBook;
+			import fcat.ApplicationControl;
+			import qs.caching.ContentCache;
+			import qs.controls.flexBookClasses.FlexBookEvent;
+
+			[Embed (source="assets/CursorZoomIn.swf")]
+			public var cursorZoomIn: Class;
+
+			[Embed (source="assets/CursorZoomOut.swf")]
+			public var cursorZoomOut: Class;
+
+			private var bookAspectRatio: Number;
+
+			public var appControl: ApplicationControl = ApplicationControl.applicationControl;
+
+			private var instructionsVisible:Boolean = true;
+
+			[Bindable]
+			public var conf: XML;
+
+			private function initApp(): void
+			{
+				//mx.core.Singleton.registerClass("mx.styles::IStyleManager2", Class(ApplicationDomain.currentDomain.getDefinition("mx.styles::StyleManagerImpl")));
+
+				appControl.initApp(this);
+
+				var cloader: URLLoader = new URLLoader();
+				cloader.addEventListener(Event.COMPLETE, function(event: Event): void
+						{parseConfig(event.target.data)});
+				cloader.load( new URLRequest( appControl.parameters.configPath ) );
+			}
+
+			[Bindable]
+			private var bookPageData: ArrayCollection;
+
+			private function parseConfig(xmlData: Object):void
+			{
+				conf = new XML(xmlData);
+				//trace("Parse config: " + conf);
+
+				bookPageData = new ArrayCollection();
+
+				var coverVO: BookPageVO = new BookPageVO();
+					coverVO.pageId = conf..cover.@id;
+					coverVO.isFrontCover = true;
+					coverVO.thumb = conf..cover.@thumb;
+					coverVO.source = conf..cover.@source;
+					coverVO.downloadLink = conf..cover.@download;
+
+				var backCoverVO: BookPageVO = new BookPageVO();
+					backCoverVO.pageId = conf..backcover.@id;
+					backCoverVO.isBackCover = true;
+					backCoverVO.thumb = conf..backcover.@thumb;
+					backCoverVO.source = conf..backcover.@source;
+					backCoverVO.downloadLink = conf..backcover.@download;
+
+				bookPageData.addItem(coverVO);
+
+					for each(var pagenode: XML in conf..page)
+					{
+						var pageVO: BookPageVO = new BookPageVO();
+						pageVO.pageId = pagenode.@id;
+						pageVO.thumb = pagenode.@thumb;
+						pageVO.source = pagenode.@source;
+						pageVO.downloadLink = pagenode.@download;
+
+						bookPageData.addItem(pageVO);
+					}
+
+				bookPageData.addItem(backCoverVO);
+
+				// Preload content to cache
+				var cache: ContentCache = ContentCache.getCache();
+
+				// First, preload the cover
+				cache.preloadContent(conf..cover.@thumb);
+
+				// Preload page thumbs
+				var thumbs:XMLList = conf..page.@thumb;
+				for(var i:int=0;i<thumbs.length();i++)
+				{
+					cache.preloadContent(thumbs[i]);
+				}
+
+				//preload buttons mouseovers
+				cache.preloadContent(conf..bt_scroll_previous.@mouseover);
+				cache.preloadContent(conf..bt_scroll_front.@mouseover);
+				cache.preloadContent(conf..bt_scroll_next.@mouseover);
+				cache.preloadContent(conf..bt_scroll_last.@mouseover);
+				cache.preloadContent(conf..bt_index.@mouseover);
+				cache.preloadContent(conf..bt_zoomin.@mouseover);
+				cache.preloadContent(conf..bt_zoomout.@mouseover);
+				cache.preloadContent(conf..bt_download.@mouseover);
+				cache.preloadContent(conf..bt_bookmark.@mouseover);
+				cache.preloadContent(conf..bt_helpscreen.@mouseover);
+
+				cache.preloadContent(conf..logo.@mouseover);
+				cache.preloadContent(conf..poweredby.@mouseover);
+
+				// Preload page full images
+				if(String(conf..book.@preloadFullPages).toLowerCase() == "true")
+				{
+					var pages:XMLList = conf..page.@source;
+					for(i=0;i<pages.length();i++)
+					{
+						cache.preloadContent(pages[i]);
+					}
+				}
+				cache.preloadContent(conf..backcover.@source);
+
+				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
+				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
+
+				BindingUtils.bindSetter(setBookContent, this, "conf");
+
+				enableButtonById( "bt_index", String(conf..feature.(@id=='index').@enabled).toLowerCase() == "true" );
+				enableButtonById( "bt_zoomin", String(conf..feature.(@id=='zoom').@enabled).toLowerCase() == "true" );
+				enableButtonById( "bt_zoomout", String(conf..feature.(@id=='zoom').@enabled).toLowerCase() == "true" );
+				enableButtonById( "bt_download", String(conf..feature.(@id=='download').@enabled).toLowerCase() == "true" );
+				enableButtonById( "bt_helpscreen", String(conf..feature.(@id=='helpscreen').@enabled).toLowerCase() == "true" );
+
+				fastnavigation.includeInLayout = fastnavigation.visible = String(conf..feature.(@id=='fastnavigation').@enabled).toLowerCase() == "true";
+				fastnavigation.addEventListener(BookEvent.PAGE_SELECT, bookPageSelectHandler);
+			}
+
+			public function setBookContent(conf: XML): void
+			{
+				bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / parseInt(conf..book.@pageHeight);
+
+				setBookSize();
+
+				frontCover.data = bookPageData[0];
+				backCover.data = bookPageData[bookPageData.length-1];
+				//frontCover.thumb.source = bookPageData[0].thumb;
+
+				var pagesCollection: ArrayCollection = new ArrayCollection(bookPageData.source.concat());
+				// remove back and front covers
+				pagesCollection.removeItemAt(pagesCollection.length-1);
+				pagesCollection.removeItemAt(0);
+
+				book.content = pagesCollection;
+
+				topbar.setStyle("backgroundColor", String(conf..topbar.@bg_color).replace( /0x/gi, '#' ) );
+				topbar.setStyle("backgroundImage", appControl.url + conf..topbar.@bg_image );
+
+				bookarea.setStyle("backgroundColor", String(conf..book.@bg_color).replace( /0x/gi, '#' ) );
+				bookarea.setStyle("backgroundImage", appControl.url + conf..book.@bg_image );
+
+				bottombar.setStyle("backgroundColor", String(conf..bottombar.@bg_color).replace( /0x/gi, '#' ) );
+				bottombar.setStyle("backgroundImage", appControl.url + conf..bottombar.@bg_image );
+			}
+
+//			private var setBookSizeTimer: Timer = new Timer(1000, 1);
+//
+//			private function setBookSizeTimerHandler( event: TimerEvent ): void
+//			{
+//				setBookSizeTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, setBookSizeTimerHandler);
+//				setBookSizeTimer.reset();
+//				setBookSizeTimer.stop();
+//
+//				setBookSize();
+//			}
+
+			private function bookCanvasResizeHandler( event: ResizeEvent ): void
+			{
+				setBookSize();
+//				if(setBookSizeTimer.running == false)
+//				{
+//					setBookSizeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, setBookSizeTimerHandler);
+//					setBookSizeTimer.reset();
+//					setBookSizeTimer.start();
+//				}
+			}
+
+			private function setBookSize(firstRun: Boolean = false): void
+			{
+				if(!isNaN(bookAspectRatio))
+				{
+					var canvasAspectRatio: Number = bookCanvas.width / bookCanvas.height;
+
+					if( canvasAspectRatio > bookAspectRatio )
+					{
+						book.height = int(bookCanvas.height) - parseInt(landscape.getStyle("paddingBottom")) - parseInt(landscape.getStyle("paddingTop"));
+						book.width = int(book.height * bookAspectRatio);
+					}
+					else
+					{
+						book.width = int(bookCanvas.width);
+						book.height = int(book.width / bookAspectRatio);
+					}
+
+					book.setStyle("edgeAndCornerSize", book.width / 6);
+				}
+			}
+
+//			private function hideInstructions(event: MouseEvent):void
+//			{
+//				if(instructionsVisible)
+//					hideInstructionsEffect.play();
+//				instructionsVisible = false;
+//			}
+
+			private function pageTurnStartHandler(event: FlexBookEvent): void
+			{
+				checkContentIsLoaded(event);
+			}
+
+			private function pageTurnEndHandler(event: FlexBookEvent): void
+			{
+				fastnavigation.activePage = FlexBook(event.target).currentPageIndex + 1;
+
+				loadContent(event);
+			}
+
+			private function checkContentIsLoaded(event: FlexBookEvent): void
+			{
+				var page: ImagePage = event.renderer as ImagePage;
+				if(page != null && page.full != null)
+				{
+					//trace("Load full page " + event );
+					page.checkContentIsLoaded();
+				}
+			}
+
+			private function loadContent(event: FlexBookEvent): void
+			{
+				var page: ImagePage = event.renderer as ImagePage;
+				if(page != null && page.full != null)
+				{
+					//trace("Load full page " + event );
+					page.load();
+				}
+			}
+
+			private function goByLogoLink():void
+			{
+				navigateToURL(new URLRequest( String(conf..logo.@link)), "_blank");
+			}
+
+			private function goByPoweredByLink():void
+			{
+				navigateToURL(new URLRequest( String(conf..poweredby.@link)), "_blank");
+			}
+
+			private function scrollFront(): void
+			{
+				book.turnToPage(book.minimumPageIndex);
+			}
+
+			private function scrollPrev(): void
+			{
+				if(book.currentPageIndex > -1)
+					book.turnToPage(book.currentPageIndex - 1);
+			}
+
+			private function scrollNext():void
+			{
+				if(book.currentPageIndex < book.pageCount)
+					book.turnToPage(book.currentPageIndex + 1);
+			}
+
+			private function scrollLast():void
+			{
+				book.turnToPage(book.maximumPageIndex-1);
+			}
+
+			public function bookPageSelectHandler(event: BookEvent): void
+			{
+				var pageToTurnTo: int = event.pageId / 2 - 1 ;
+
+				if( event.pageId == 1)
+				{
+					pageToTurnTo = -1
+				}
+
+				trace("turn: " + event.pageId + " - " + pageToTurnTo );
+
+				book.turnToPage( pageToTurnTo );
+			}
+
+			private function downloadPDFDoc(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					var pageIndex: int = book.pageToContentIndex(book.currentPageIndex) + 3;
+					var downloadLink: String = String(conf..page.(@id==pageIndex).@download);
+
+					if (pageIndex==1)
+					{
+						downloadLink = String(conf..cover.(@id==pageIndex).@download)
+					}
+
+					if(downloadLink != "")
+					{
+						trace(" Download page: " + pageIndex + ", pdf link: " + downloadLink );
+						navigateToURL( new URLRequest( downloadLink ), "_blank" );
+					}
+					else
+					{
+						showWarning(" Download page error: Тo link to the page provided." );
+					}
+				}
+			}
+
+
+			////////////////////////////////////////////////////////////////////
+			// Utilities
+			////////////////////////////////////////////////////////////////////
+			public function showWarning( message: String, header: String = null ): void
+			{
+				trace(message);
+			}
+
+			public function showStatus( message: String, header: String = null ): void
+			{
+				trace(message);
+			}
+
+
+			////////////////////////////////////////////////////////////////////
+			// Menu button actions
+			////////////////////////////////////////////////////////////////////
+
+			public function enableButtonById(buttonID: String, toEnable: Boolean): void
+			{
+				var img: SuperImage = this[buttonID] as SuperImage;
+				var spacer: Spacer = this[buttonID + "_spacer"] as Spacer;
+
+				spacer.includeInLayout = toEnable;
+
+				img.includeInLayout = toEnable;
+				img.visible = toEnable;
+				img.enabled = toEnable;
+				img.buttonMode = toEnable;
+
+				toEnable ? img.alpha = 1.0 : img.alpha = 0.4;
+			}
+
+			private function switchIndex(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					showStatus("Show index");
+				}
+			}
+
+			private var zoomedIn: Boolean = false;
+
+			public function zoomFromPageClick(event: MouseEvent): void
+			{
+				if(!zoomedIn)
+				/* {
+					trace("Zoom book out");
+					focusOn( book );
+					book.mouseChildren = true;
+					zoomedIn = false;
+				}
+				else */
+				{
+					trace("Zoom book in");
+					showBookNavigation(false);
+
+					focusOn( event.currentTarget );
+					book.mouseChildren = false;
+					zoomedIn = true;
+				}
+			}
+
+			public function zoomIn(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					var target: * = bookCanvas;
+					if(book.currentPage.leftRenderer == null && book.currentPage.rightRenderer != null)
+					{
+						target = book.currentPage.rightRenderer;
+					}
+					else if(book.currentPage.rightRenderer == null && book.currentPage.leftRenderer != null)
+					{
+						target = book.currentPage.leftRenderer;
+					}
+
+					if(landscape.selection.length == 0 || landscape.selection[0] != target)
+					{
+						showStatus("Zoom in");
+						showBookNavigation(false);
+
+						book.mouseEnabled = false;
+						book.mouseChildren = false;
+						focusOn( target );
+					}
+				}
+			}
+
+			private function zoomOut(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					var target: * = bookCanvas;
+					if(book.currentPage.leftRenderer == null)
+					{
+						target = book.currentPage.rightRenderer;
+					}
+					else if(book.currentPage.rightRenderer == null)
+					{
+						target = book.currentPage.leftRenderer;
+					}
+
+					if(landscape.selection.length == 1 && landscape.selection[0] == target || target == bookCanvas)
+					{
+						showStatus("Zoom out");
+						showBookNavigation(true);
+
+						book.mouseEnabled = true;
+						book.mouseChildren = true;
+						focusOn( book )
+					}
+				}
+			}
+
+			private function landscapeZoomCompleteHandler(event:BookEvent):void
+			{
+				//trace("landscapeZoomCompleteHandler: " + event.isZoomedIn );
+				zoomedIn = event.isZoomedIn;
+				if(event.isZoomedIn)
+				{
+					book.filters = [];
+					book.addEventListener(MouseEvent.CLICK, zoomOut);
+				}
+				else
+				{
+					book.filters = [bookShadow];
+					book.removeEventListener(MouseEvent.CLICK, zoomOut);
+				}
+			}
+
+			private function switchHelpScreen(event: MouseEvent): void
+			{
+				if(event.currentTarget.enabled)
+				{
+					showStatus("Switch help screen");
+				}
+			}
+
+			public function focusOn(target:*):void
+			{
+				if(landscape.selection.length == 1 && landscape.selection[0] == target)
+				{
+					landscape.selection = [];
+				}
+				else
+				{
+					landscape.selection = [target];
+				}
+			}
+
+			public function setMouseCursor(cursorName:String):void
+			{
+				if(cursorName == 'CursorZoom')
+				{
+					if(zoomedIn)
+					{
+						cursorManager.setCursor( cursorZoomOut );
+					}
+					else
+					{
+						cursorManager.setCursor( cursorZoomIn );
+					}
+				}
+				else
+				{
+					cursorManager.removeAllCursors();
+				}
+
+				//trace("Set cursor: " + cursorName);
+			}
+
+			private function showBookNavigation(toShow:Boolean):void
+			{
+				bt_scroll_front.visible = toShow;
+				bt_scroll_last.visible = toShow;
+				bt_scroll_next.visible = toShow;
+				bt_scroll_previous.visible = toShow;
+
+				fastnavigation.visible = toShow;
+
+				if( !toShow )
+				{
+					book.filters = [];
+				}
+			}
+
+
+		]]>
+	</Script>
+
+
+	<Style source="assets/styles.css" />
+
+	<Style>
+		FlexBook {
+			horizontalCenter: 0;
+			verticalCenter: 0;
+			showCornerTease: true;
+			pageShadowStrength: 0.5;
+			/* //book.setStyle("curveShadowStrength", 1);
+			//book.setStyle("dropShadowEnabled", true);
+			//book.setStyle("dropShadowColor", 0xFF0000); */
+		}
+	</Style>
+	<Object>
+		<cover>
+			<VBox height="100%" width="100%">
+				<controls:Zoomer >
+					<l:ImagePage id="frontCover" click="{zoomFromPageClick(event)}" />
+				</controls:Zoomer>
+			</VBox>
+		</cover>
+		<backCover>
+			<VBox height="100%" width="100%">
+				<controls:Zoomer >
+					<l:ImagePage id="backCover" click="{zoomFromPageClick(event)}" />
+				</controls:Zoomer>
+			</VBox>
+		</backCover>
+	</Object>
+
+	<Canvas id="topbar" width="100%" height="40" textAlign="right" >
+		<controls:SuperImage buttonMode="true" source="{conf..logo.@mouseup}" oversource="{conf..logo.@mouseover}" right="0" click="{goByLogoLink()}" />
+	</Canvas>
+
+	<VBox id="bookarea" width="100%" height="100%" top="40" bottom="36" verticalGap="0">
+
+		<HBox horizontalAlign="center" width="100%" paddingTop="4" >
+			<controls1:Paginator id="fastnavigation" activePage="1" dataProvider="{bookPageData}"
+				height="21" horizontalScrollPolicy="off" backgroundColor="0xff0000" backgroundAlpha="0.0"
+				paddingTop="0" selectionColor="0xffffffff" rollOverColor="0x969696"
+				upSource="{conf..fn_page.@mouseup}" selectedIndex="0"
+				activeUpSource="{conf..fn_page_active.@mouseup}" />
+		</HBox>
+		<HBox width="100%" height="100%" >
+			<Spacer width="3%" />
+				<!-- PREV NAVS -->
+				<VBox id="navprev" left="33%" height="100%" width="48">
+					<Spacer height="40%" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_previous" source="{conf..bt_scroll_previous.@mouseup}" oversource="{conf..bt_scroll_previous.@mouseover}" width="48" height="48" click="{scrollPrev()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_front" source="{conf..bt_scroll_front.@mouseup}" oversource="{conf..bt_scroll_front.@mouseover}" width="48" height="48" click="{scrollFront()}" />
+				</VBox>
+				<!-- PREV NAVS END -->
+
+				<!-- BOOK -->
+				<containers:Landscape id="landscape" height="100%" width="100%" top="30" bottom="50"
+					paddingLeft="0" paddingTop="0" paddingBottom="20" paddingRight="0"
+					zoomLimit="3"
+					clipContent="false"
+					cachePolicy="off" pageZoomComplete="landscapeZoomCompleteHandler(event);" >
+
+				<Canvas id="bookCanvas" width="100%" height="100%" resize="{bookCanvasResizeHandler(event)}" >
+					<controls:FlexBook
+						mouseOver="setMouseCursor('CursorZoom');" mouseOut="setMouseCursor('default');"
+						id="book" y="47" width="50" height="25"
+						animateCurrentPageIndex="true" animatePagesOnTurn="true"
+						showCornerTease="true" activeGrabArea="corner"
+						edgeAndCornerSize="10"
+						itemSize="halfPage" cover="{frontCover}" backCover="{backCover}">
+						<controls:filters>
+							<DropShadowFilter id="bookShadow" alpha="1.0" blurX="20" blurY="30" color="0x000000" quality="2" strength="1.0" />
+						</controls:filters>
+
+						<controls:itemRenderer>
+						<Component>
+							<!-- Canvas height="100%" width="100%" backgroundColor="0xffcc00">
+								<controls:Zoomer width="100%" height="100%" -->
+								<l:ImagePage click="outerDocument.zoomFromPageClick(event)" />
+								<!-- controls:SuperImage width="100%" height="100%" data="{data.thumb}" click="outerDocument.focusOn(event.currentTarget)" / -->
+								<!-- /controls:Zoomer>
+							</Canvas  -->
+						</Component>
+						</controls:itemRenderer>
+					</controls:FlexBook>
+				</Canvas>
+				</containers:Landscape>
+				<!-- BOOK END -->
+
+				<!-- NEXT NAVS -->
+				<VBox id="navnext" left="66%" height="100%" width="48">
+					<Spacer height="40%" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_next" source="{conf..bt_scroll_next.@mouseup}" oversource="{conf..bt_scroll_next.@mouseover}" width="48" height="48" click="{scrollNext()}" />
+					<controls:SuperImage buttonMode="true" id="bt_scroll_last" source="{conf..bt_scroll_last.@mouseup}" oversource="{conf..bt_scroll_last.@mouseover}" width="48" height="48" click="{scrollLast()}" />
+				</VBox>
+				<!-- NEXT NAVS END -->
+			<Spacer width="3%" />
+		</HBox>
+	</VBox>
+
+	<controls:SuperImage buttonMode="true" bottom="36" right="0" width="20" height="159" source="{conf..poweredby.@mouseup}" oversource="{conf..poweredby.@mouseover}" click="goByPoweredByLink();" />
+
+	<HBox id="bottombar" width="100%" height="36" bottom="0" >
+		<Spacer width="5" />
+		<controls:SuperImage source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
+		<Spacer id="bt_index_spacer" width="5" />
+		<controls:SuperImage source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
+		<Spacer id="bt_zoomin_spacer" width="5" />
+		<controls:SuperImage source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
+		<Spacer id="bt_zoomout_spacer" width="5" />
+		<controls:SuperImage source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
+		<Spacer id="bt_download_spacer" width="5" />
+		<controls:SuperImage source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
+			width="32" enabled="false" visible="false" includeInLayout="false" />
+		<Spacer id="bt_helpscreen_spacer" width="5" />
+	</HBox>
+
+		<!-- effects:AnimateColorProperty id="hideInstructionsEffect" target="{instructions}" startDelay="2000" isStyle="true"
+			property="color" toValue="#282828" fromValue="#dddddd" duration="7000" / -->
+
+			<!-- Text id="instructions" horizontalCenter="9" condenseWhite="true" textAlign="center" fontSize="14" top="468" fontFamily="Verdana" color="#dddddd">
+				<htmlText>
+						<![CDATA[ Drag the image from the right and pull it across the screen to turn the page.<br/><br/>
+						Don't forget to pull <i><b>all the way across</i></b> the screen or the image will fall back to where it was!<br/><br/>
+						Or just click and release to turn the image automatically. ]]>
+				</htmlText>
+			</Text -->
+
+</Application>
