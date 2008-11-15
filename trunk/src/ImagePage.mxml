@@ -94,8 +94,8 @@
 			}
 		]]>
 	</Script>
-	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="thumb" source="{data.thumb.toString()}" />
-	<controls:SuperImage left="0" right="0" top="0" bottom="0" id="full" complete="loadComplete();"/>
+	<controls:SuperImage smoothImage="true" left="0" right="0" top="0" bottom="0" id="thumb" source="{data.thumb.toString()}" />
+	<controls:SuperImage smoothImage="true" left="0" right="0" top="0" bottom="0" id="full" complete="loadComplete();"/>
 
 	<Label id="pageLabel" color="0x999999" text="- {this.data.pageId} -" x="{width/2 - pageLabel.width/2}" y="{height + 8}" />
 </Canvas>
