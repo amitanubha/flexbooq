@@ -1,0 +1,8 @@
+<images>
+	<image source="content/page-1.jpg" thumb="content/page-1-th.jpg" />
+	<image source="content/page-2.jpg" thumb="content/page-2-th.jpg" />
+	<image source="content/page-3.jpg" thumb="content/page-3-th.jpg" />
+	<image source="content/page-4.jpg" thumb="content/page-4-th.jpg" />
+	<image source="content/page-5.jpg" thumb="content/page-5-th.jpg" />
+	<image source="content/page-6.jpg" thumb="content/page-6-th.jpg" />
+</images>
