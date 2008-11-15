@@ -81,6 +81,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	private var _maintainAspectRatio:Boolean = true;
 	private var _border:RectangularBorder;
 	private var _loadedFromCache:Boolean = false;
+	private var _smoothImage:Boolean = false;
 
 /*--------------------------------------------------------------------------------------------------------------------
 *  Public Properties
@@ -134,6 +135,20 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	public function get source():*
 	{
 		return _source;
+	}
+
+	// Rost: added to support image smoothing buttons
+	/**
+	 * Whether to smooth the image.
+	 */
+	[Bindable] public function set smoothImage(value:*):void
+	{
+		_smoothImage = value;
+	}
+
+	public function get smoothImage():Boolean
+	{
+		return _smoothImage;
 	}
 
 	// Rost: added to support image buttons
@@ -280,9 +295,14 @@ public class SuperImage extends UIComponent implements IDataRenderer
 					dispatchEvent(new Event(Event.COMPLETE));
 				}
 
-				//_content = cachedContent;
-
-				_content = getSmoothedContent(cachedContent as DisplayObject);
+				if(smoothImage)
+				{
+					_content = getSmoothedContent(cachedContent as DisplayObject);
+				}
+				else
+				{
+					_content = cachedContent;
+				}
 			}
 			_oldSource = newSource;
 
@@ -299,7 +319,7 @@ public class SuperImage extends UIComponent implements IDataRenderer
 		var result: DisplayObject;
 		if( source != null && source.width > 0 && source.height > 0 )
 		{
-		 	bData = new BitmapData(source.width, source.height, true, 0x66778899 );
+		 	bData = new BitmapData(source.width, source.height, false, 0xff00ff00 );
 		 	bData.draw(source, null, null, null, null, true);
 
 			var spr: Sprite = new Sprite();
