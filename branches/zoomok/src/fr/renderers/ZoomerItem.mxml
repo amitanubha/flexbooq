@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" xmlns:controls="qs.controls.*">
+
+	<mx:Script>
+		<![CDATA[
+			private function outerDocumentFocusOn(target: *): void
+			{
+				trace("Click:" + target);
+			}
+
+			[Bindable]
+			private function get imageData(): Object
+			{
+				var res: Object = {};
+
+				res.thumb = String(data.thumb);
+				//res.thumb = String(data.thumb);
+
+				return res;
+			}
+			private function set imageData($data:Object):void
+			{
+				data = $data;
+			}
+
+		]]>
+	</mx:Script>
+
+	<controls:Zoomer  >
+		<controls:SuperImage width="100%" height="100%" data="{imageData}" click="outerDocumentFocusOn(event.currentTarget)" />
+	</controls:Zoomer>
+	<controls:Zoomer >
+		<controls:SuperImage width="100%" height="100%" data="{imageData}" click="outerDocumentFocusOn(event.currentTarget)" />
+	</controls:Zoomer>
+</mx:VBox>
