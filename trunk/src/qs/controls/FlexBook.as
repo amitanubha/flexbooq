@@ -1165,11 +1165,10 @@ package qs.controls
 		private function trackCornerHandler(e:MouseEvent):void
 		{
 
-					savedCursorID = cursorManager.currentCursorID;
-					trace("saved cursor: " + savedCursorID );
-					cursorManager.removeAllCursors();
-
-					buttonMode = true;
+			//savedCursorID = cursorManager.currentCursorID;
+			//trace("saved cursor: " + savedCursorID );
+			cursorManager.removeAllCursors();
+			buttonMode = true;
 
 			if(_state == STATE_NONE)
 			{
