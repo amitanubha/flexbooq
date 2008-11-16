@@ -119,44 +119,7 @@
 
 				bookPageData.addItem(backCoverVO);
 
-				// Preload content to cache
-				var cache: ContentCache = ContentCache.getCache();
-
-				// First, preload the cover
-				cache.preloadContent(conf..cover.@thumb);
-
-				// Preload page thumbs
-				var thumbs:XMLList = conf..page.@thumb;
-				for(var i:int=0;i<thumbs.length();i++)
-				{
-					cache.preloadContent(thumbs[i]);
-				}
-
-				//preload buttons mouseovers
-				cache.preloadContent(conf..bt_scroll_previous.@mouseover);
-				cache.preloadContent(conf..bt_scroll_front.@mouseover);
-				cache.preloadContent(conf..bt_scroll_next.@mouseover);
-				cache.preloadContent(conf..bt_scroll_last.@mouseover);
-				cache.preloadContent(conf..bt_index.@mouseover);
-				cache.preloadContent(conf..bt_zoomin.@mouseover);
-				cache.preloadContent(conf..bt_zoomout.@mouseover);
-				cache.preloadContent(conf..bt_download.@mouseover);
-				cache.preloadContent(conf..bt_bookmark.@mouseover);
-				cache.preloadContent(conf..bt_helpscreen.@mouseover);
-
-				cache.preloadContent(conf..logo.@mouseover);
-				cache.preloadContent(conf..poweredby.@mouseover);
-
-				// Preload page full images
-				if(String(conf..book.@preloadFullPages).toLowerCase() == "true")
-				{
-					var pages:XMLList = conf..page.@source;
-					for(i=0;i<pages.length();i++)
-					{
-						cache.preloadContent(pages[i]);
-					}
-				}
-				cache.preloadContent(conf..backcover.@source);
+				setupPreload();
 
 				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
 				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
@@ -173,9 +136,87 @@
 				fastnavigation.addEventListener(BookEvent.PAGE_SELECT, bookPageSelectHandler);
 			}
 
+			private function setupPreload(): void
+			{
+				// Preload content to cache
+				var cache: ContentCache = ContentCache.getCache();
+
+				//preload buttons
+				cache.preloadContent(conf..bt_scroll_previous.@mouseup);
+				cache.preloadContent(conf..bt_scroll_front.@mouseup);
+				cache.preloadContent(conf..bt_scroll_next.@mouseup);
+				cache.preloadContent(conf..bt_scroll_last.@mouseup);
+				cache.preloadContent(conf..bt_index.@mouseup);
+				cache.preloadContent(conf..bt_zoomin.@mouseup);
+				cache.preloadContent(conf..bt_zoomout.@mouseup);
+				cache.preloadContent(conf..bt_download.@mouseup);
+				cache.preloadContent(conf..bt_bookmark.@mouseup);
+				cache.preloadContent(conf..bt_helpscreen.@mouseup);
+				cache.preloadContent(conf..fn_page.@mouseup);
+				cache.preloadContent(conf..fn_page_active.@mouseup);
+
+				//preload buttons mouseovers
+				cache.preloadContent(conf..bt_scroll_previous.@mouseover);
+				cache.preloadContent(conf..bt_scroll_front.@mouseover);
+				cache.preloadContent(conf..bt_scroll_next.@mouseover);
+				cache.preloadContent(conf..bt_scroll_last.@mouseover);
+				cache.preloadContent(conf..bt_index.@mouseover);
+				cache.preloadContent(conf..bt_zoomin.@mouseover);
+				cache.preloadContent(conf..bt_zoomout.@mouseover);
+				cache.preloadContent(conf..bt_download.@mouseover);
+				cache.preloadContent(conf..bt_bookmark.@mouseover);
+				cache.preloadContent(conf..bt_helpscreen.@mouseover);
+
+				cache.preloadContent(conf..logo.@mouseover);
+				cache.preloadContent(conf..poweredby.@mouseover);
+
+				cache.preloadContent(conf..backcover.@source);
+				cache.preloadContent(conf..backcover.@source);
+
+				// First, preload the cover
+				cache.preloadContent(conf..cover.@thumb);
+				cache.preloadContent(conf..cover.@source);
+
+				// Preload page thumbs 50%
+				var thumbs:XMLList = conf..page.@thumb;
+				for(var i:int=0;i<Math.floor(thumbs.length() / 2);i++)
+				{
+					cache.preloadContent(thumbs[i]);
+				}
+
+				// Preload page full images 25%
+				if(String(conf..book.@preloadFullPages).toLowerCase() == "true")
+				{
+					var pages:XMLList = conf..page.@source;
+					for(i=0;i<Math.floor(pages.length() * .25);i++)
+					{
+						cache.preloadContent(pages[i]);
+					}
+				}
+
+				// Preload page thumbs 50%
+				for(i=Math.floor(thumbs.length() / 2);i<thumbs.length();i++)
+				{
+					cache.preloadContent(thumbs[i]);
+				}
+
+				// Preload page full images 75%
+				if(String(conf..book.@preloadFullPages).toLowerCase() == "true")
+				{
+					for(i=Math.floor(pages.length() * .25);i<pages.length();i++)
+					{
+						cache.preloadContent(pages[i]);
+					}
+				}
+
+
+
+			}
+
+
 			public function setBookContent(conf: XML): void
 			{
-				bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / parseInt(conf..book.@pageHeight);
+				bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
 
 				setBookSize();
 
@@ -198,6 +239,11 @@
 
 				bottombar.setStyle("backgroundColor", String(conf..bottombar.@bg_color).replace( /0x/gi, '#' ) );
 				bottombar.setStyle("backgroundImage", appControl.url + conf..bottombar.@bg_image );
+
+				//zoomIn();
+				//var zoomEvent: MouseEvent = new MouseEvent(MouseEvent.CLICK);
+				//zoomEvent.currentTarget = null;
+				//focusOn( bookCanvas );
 			}
 
 //			private var setBookSizeTimer: Timer = new Timer(1000, 1);
@@ -442,7 +488,7 @@
 				}
 			}
 
-			private function zoomOut(event: MouseEvent): void
+			private function zoomOut(event: MouseEvent = null): void
 			{
 				if(event.currentTarget.enabled)
 				{
@@ -461,8 +507,6 @@
 						showStatus("Zoom out");
 						showBookNavigation(true);
 
-						book.mouseEnabled = true;
-						book.mouseChildren = true;
 						focusOn( book )
 					}
 				}
@@ -481,7 +525,11 @@
 				{
 					book.filters = [bookShadow];
 					book.removeEventListener(MouseEvent.CLICK, zoomOut);
+
+					book.mouseEnabled = true;
+					book.mouseChildren = true;
 				}
+				//trace("bookCanvas.y = " + bookCanvas.y + ", " + bookbox.y );
 			}
 
 			private function switchHelpScreen(event: MouseEvent): void
@@ -588,7 +636,7 @@
 				upSource="{conf..fn_page.@mouseup}" selectedIndex="0"
 				activeUpSource="{conf..fn_page_active.@mouseup}" />
 		</HBox>
-		<HBox width="100%" height="100%" >
+		<HBox width="100%" height="100%" id="bookbox" >
 			<Spacer width="3%" />
 				<!-- PREV NAVS -->
 				<VBox id="navprev" left="33%" height="100%" width="48">
@@ -600,13 +648,15 @@
 
 				<!-- BOOK -->
 				<containers:Landscape id="landscape" height="100%" width="100%" top="30" bottom="50"
-					paddingLeft="0" paddingTop="0" paddingBottom="20" paddingRight="0"
+					paddingLeft="0" paddingTop="0" paddingBottom="0" paddingRight="0"
 					zoomLimit="3"
 					clipContent="false"
 					cachePolicy="off" pageZoomComplete="landscapeZoomCompleteHandler(event);" >
 
-				<Canvas id="bookCanvas" width="100%" height="100%" resize="{bookCanvasResizeHandler(event)}" >
+				<Canvas id="bookCanvas" width="100%" height="100%" resize="{bookCanvasResizeHandler(event)}"
+					horizontalScrollPolicy="off" verticalScrollPolicy="off" >
 					<controls:FlexBook
+						autoTurnDuration="400"
 						mouseOver="setMouseCursor('CursorZoom');" mouseOut="setMouseCursor('default');"
 						id="book" y="47" width="50" height="25"
 						animateCurrentPageIndex="true" animatePagesOnTurn="true"
@@ -647,19 +697,19 @@
 
 	<HBox id="bottombar" width="100%" height="36" bottom="0" >
 		<Spacer width="5" />
-		<controls:SuperImage source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
+		<controls:SuperImage toolTip="Show index" source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_index_spacer" width="5" />
-		<controls:SuperImage source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
+		<controls:SuperImage toolTip="Zoom in" source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomin_spacer" width="5" />
-		<controls:SuperImage source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
+		<controls:SuperImage toolTip="Zoom out" source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomout_spacer" width="5" />
-		<controls:SuperImage source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
+		<controls:SuperImage toolTip="Download page as PDF" source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_download_spacer" width="5" />
-		<controls:SuperImage source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
+		<controls:SuperImage toolTip="Show help screen" source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_helpscreen_spacer" width="5" />
 	</HBox>
