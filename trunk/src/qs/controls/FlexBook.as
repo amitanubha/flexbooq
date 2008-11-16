@@ -116,8 +116,8 @@ package qs.controls
 		private static const TURN_DIRECTION_BACKWARDS:Number = 1;
 
 		// constants used to create the animation of the page.
-		private static const Y_ACCELERATION:Number = .4;
-		private static const X_ACCELERATION:Number = .2;
+		private static const Y_ACCELERATION:Number = .4;// Rost: was .4;
+		private static const X_ACCELERATION:Number = .2;// Rost: was .2
 		private static const SOLO_Y_ACCELERATION:Number = .2;
 
 		// bitflags to identify a region of the page.
@@ -738,6 +738,7 @@ package qs.controls
 		private function dispatchEventForPage(page:FlexBookPage,turning:Boolean):void
 		{
 			var eventType:String = (turning)? FlexBookEvent.TURN_START:FlexBookEvent.TURN_END;
+			//var pageIndex:int = page.paFlexBookEvent.TURN_START:FlexBookEvent.TURN_END;
 
 			updatePageStack(eventType);
 
@@ -858,7 +859,6 @@ package qs.controls
 			var pageOffset: int = 2;
 
 			var g:Graphics = _pageStack.graphics;
-			g.clear();
 
 			var curPageIndex: int = _displayedPageIndex;
 			if(eventType == FlexBookEvent.TURN_START)
@@ -869,15 +869,43 @@ package qs.controls
 					{
 						curPageIndex += 1;
 					}
+
+					if( _targetPageIndex == -1 )
+					{
+						trace("Alooooha!");
+					}
 				}
 				else
 				{
 					if (curPageIndex == 0)
 					{
 						curPageIndex = -1;
+						trace("curpgaeindex: " + curPageIndex);
+					}
+					if( _targetPageIndex == 0 )
+					{
+						trace("Alooooha!");
 					}
 				}
+				trace("Target page : " +_targetPageIndex );
 			}
+
+			if(_targetPageIndex == -1 && eventType == FlexBookEvent.TURN_START)
+			{
+				trace("Switching tot the FRonT!");
+
+				g.clear();
+				return;
+			}
+
+			if(_targetPageIndex == pageCount && eventType == FlexBookEvent.TURN_START)
+			{
+				trace("Switching tot the END!");
+				g.clear();
+				return;
+			}
+
+			g.clear();
 
 			// Draw left side
 			var i: int = curPageIndex + 1;
@@ -1428,6 +1456,8 @@ package qs.controls
 
 		private function finishTurn():void
 		{
+			cc = 0.5;
+
 			_timer.stop();
 			if(_state == STATE_COMPLETING || _state == STATE_AUTO_TURNING || _state == STATE_AUTO_COMPLETING )
 			{
@@ -1437,8 +1467,12 @@ package qs.controls
 			setState(STATE_NONE);
 		}
 
+		private var cc: Number = 0.5;
 		private function timerHandler(e:TimerEvent):void
 		{
+			var dx:Number;
+			var dy:Number;
+
 			if(_currentDragTarget == null)
 			{
 				return;
@@ -1446,21 +1480,37 @@ package qs.controls
 
 			if(_state == STATE_AUTO_TURNING)
 			{
+				cc += 0.1;
+				//cc = Math.min(cc, 1);
+
 				if(isNaN(_turnStartTime))
 					_turnStartTime = getTimer();
 
-				var t:Number = (getTimer() - _turnStartTime)/autoTurnDurationD;
+				dx = (_targetPoint.x - _currentDragTarget.x);
+				dy = (_targetPoint.y - _currentDragTarget.y);
+
+				var t:Number = (getTimer() - _turnStartTime)/(autoTurnDurationD * cc );
 				t = Math.min(t,1);
+
 				var a:Number = t * Math.PI;
+
+				//trace("t = " + t + ",  cc = " + cc);
+
+				var accelX: Number = 0.1;//X_ACCELERATION;
+				var accelY: Number = 0.1;//Y_ACCELERATION;
 				if(_turnDirection == TURN_DIRECTION_FORWARD)
 				{
 					_currentDragTarget.x = _hCenter + _pageWidth*Math.cos(a);
-					_currentDragTarget.y = _pageBottom - _pageHeight/5*Math.sin(a);
+					_currentDragTarget.y = _pageBottom - _pageHeight/15*Math.sin(a);
+					//_currentDragTarget.x = _hCenter + _pageWidth / (a*accelX);
+					//_currentDragTarget.y = _pageBottom - _pageHeight/ (a*accelY);
 				}
 				else
 				{
-					_currentDragTarget.x = _hCenter - _pageWidth*Math.cos(a);
-					_currentDragTarget.y = _pageBottom - _pageHeight/5*Math.sin(a);
+					_currentDragTarget.x = (_hCenter - _pageWidth*Math.cos(a));
+					_currentDragTarget.y = _pageBottom - _pageHeight/15*Math.sin(a);
+					//_currentDragTarget.x = _hCenter - _pageWidth / (a*accelX);
+					//_currentDragTarget.y = _pageBottom - _pageHeight / (a*accelY);
 				}
 				if(t == 1)
 					finishTurn();
@@ -1479,8 +1529,8 @@ package qs.controls
 					ySpeedMultiplier = 1.5;
 				}
 
-				var dx:Number = (_targetPoint.x - _currentDragTarget.x);
-				var dy:Number = (_targetPoint.y - _currentDragTarget.y);
+				dx = (_targetPoint.x - _currentDragTarget.x);
+				dy = (_targetPoint.y - _currentDragTarget.y);
 
 				if(Math.abs(dx) <= 1)
 				{
@@ -1509,6 +1559,8 @@ package qs.controls
 					// advance both the x and y values.
 					_currentDragTarget.x += dx * X_ACCELERATION * xSpeedMultiplier;
 					_currentDragTarget.y += dy * Y_ACCELERATION * ySpeedMultiplier;
+
+					//trace("dx = "  + dx );
 				}
 			}
 
