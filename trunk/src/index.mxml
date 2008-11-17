@@ -60,6 +60,7 @@
 			public var cursorZoomOut: Class;
 
 			private var bookAspectRatio: Number;
+			private var bookAspectRatioNoStack: Number;
 
 			public var appControl: ApplicationControl = ApplicationControl.applicationControl;
 
@@ -91,6 +92,8 @@
 				setupPreload();
 
 				book.maxPageStackDepth = parseInt(conf..book.@maximumPageStackDepth);
+				book.pageOffsetInStack = parseInt(conf..book.@pageOffsetInStack);
+				//book.pageNumberHeightOffset = parseInt(conf..book.@pageNumberYOffset);
 
 				bookPageData = new ArrayCollection();
 
@@ -221,7 +224,13 @@
 			{
 				trace("Set book content");
 
-				bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
+				//bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
+
+				//var pageStackSize: Number = parseInt(conf..book.@maximumPageStackDepth) * parseInt(conf..book.@pageOffsetInStack);
+				var pageStackSize: Number = parseInt(conf..book.@maximumPageStackDepth) * parseInt(conf..book.@pageOffsetInStack);
+
+				bookAspectRatio = (parseInt(conf..book.@pageWidth) * 2 + pageStackSize) / (parseInt(conf..book.@pageHeight) + 2 * Math.max(pageStackSize, book.pageNumberHeightOffset ));
+				bookAspectRatioNoStack = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
 
 				setBookSize();
 
@@ -244,33 +253,11 @@
 
 				bottombar.setStyle("backgroundColor", String(conf..bottombar.@bg_color).replace( /0x/gi, '#' ) );
 				bottombar.setStyle("backgroundImage", appControl.url + conf..bottombar.@bg_image );
-
-				//zoomIn();
-				//var zoomEvent: MouseEvent = new MouseEvent(MouseEvent.CLICK);
-				//zoomEvent.currentTarget = null;
-				//focusOn( bookCanvas );
 			}
-
-//			private var setBookSizeTimer: Timer = new Timer(1000, 1);
-//
-//			private function setBookSizeTimerHandler( event: TimerEvent ): void
-//			{
-//				setBookSizeTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, setBookSizeTimerHandler);
-//				setBookSizeTimer.reset();
-//				setBookSizeTimer.stop();
-//
-//				setBookSize();
-//			}
 
 			private function bookCanvasResizeHandler( event: ResizeEvent ): void
 			{
 				setBookSize();
-//				if(setBookSizeTimer.running == false)
-//				{
-//					setBookSizeTimer.addEventListener(TimerEvent.TIMER_COMPLETE, setBookSizeTimerHandler);
-//					setBookSizeTimer.reset();
-//					setBookSizeTimer.start();
-//				}
 			}
 
 			private function setBookSize(firstRun: Boolean = false): void
@@ -281,13 +268,13 @@
 
 					if( canvasAspectRatio > bookAspectRatio )
 					{
-						book.height = int(bookCanvas.height) - parseInt(landscape.getStyle("paddingBottom")) - parseInt(landscape.getStyle("paddingTop"));
-						book.width = int(book.height * bookAspectRatio);
+						book.height = int( bookCanvas.height - book.heightOffset);
+						book.width = int( (book.height) * bookAspectRatioNoStack);
 					}
 					else
 					{
-						book.width = int(bookCanvas.width);
-						book.height = int(book.width / bookAspectRatio);
+						book.width = int(bookCanvas.width - book.widthOffset);
+						book.height = int(book.width / bookAspectRatioNoStack);
 					}
 
 					book.setStyle("edgeAndCornerSize", book.width / 6);
@@ -512,7 +499,7 @@
 						showStatus("Zoom out");
 						showBookNavigation(true);
 
-						focusOn( book )
+						focusOn( bookCanvas )
 					}
 				}
 			}
@@ -614,16 +601,16 @@
 	<Object>
 		<cover>
 			<VBox height="100%" width="100%">
-				<controls:Zoomer >
+				<!-- controls:Zoomer -->
 					<l:ImagePage id="frontCover" click="{zoomFromPageClick(event)}" />
-				</controls:Zoomer>
+				<!-- /controls:Zoomer -->
 			</VBox>
 		</cover>
 		<backCover>
 			<VBox height="100%" width="100%">
-				<controls:Zoomer >
+				<!-- controls:Zoomer -->
 					<l:ImagePage id="backCover" click="{zoomFromPageClick(event)}" />
-				</controls:Zoomer>
+				<!-- /controls:Zoomer -->
 			</VBox>
 		</backCover>
 	</Object>
@@ -677,7 +664,6 @@
 							<!-- Canvas height="100%" width="100%" backgroundColor="0xffcc00">
 								<controls:Zoomer width="100%" height="100%" -->
 								<l:ImagePage click="outerDocument.zoomFromPageClick(event)" />
-								<!-- controls:SuperImage width="100%" height="100%" data="{data.thumb}" click="outerDocument.focusOn(event.currentTarget)" / -->
 								<!-- /controls:Zoomer>
 							</Canvas  -->
 						</Component>

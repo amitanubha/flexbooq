@@ -214,6 +214,10 @@ package qs.controls
 		private var _pageStack: Sprite;
 		private var _pageStackArray: Array;
 		private var _maxPageStackDepth: int = 7;
+		private var _pageOffsetInStack: int = 2;
+		private var _pageStackSize: Number;
+
+		private var _pageNumberHeightOffset: int = 50;
 
 //--------------------------------------------------------------------------------------------------------
 // public properties
@@ -229,6 +233,42 @@ package qs.controls
 		{
 			_maxPageStackDepth = value;
 		}
+
+		// Rost: to implement page stack
+		public function get pageOffsetInStack():int
+		{
+			return _pageOffsetInStack;
+		}
+
+		[Bindable]
+		public function get pageNumberHeightOffset():int
+		{
+			return _pageNumberHeightOffset;
+		}
+
+		public function set pageOffsetInStack(value:int):void
+		{
+			_pageOffsetInStack = value;
+		}
+
+
+		public function set pageNumberHeightOffset(value:int):void
+		{
+			_pageNumberHeightOffset = value;
+
+			trace("Page number Y offset: " + pageNumberHeightOffset );
+		}
+
+		public function get widthOffset():Number
+		{
+			return _pageStackSize;
+		}
+
+		public function get heightOffset():Number
+		{
+			return Math.max(_pageNumberHeightOffset, _pageStackSize) + 10;
+		}
+
 
 		public function get currentPage():FlexBookPage
 		{
@@ -859,8 +899,10 @@ package qs.controls
 			_pageHeight = unscaledHeight;
 			_oldWidth = unscaledWidth;
 			_oldHeight = unscaledHeight;
-		}
 
+			// Rost: to support book size with page stack
+			_pageStackSize = _maxPageStackDepth * _pageOffsetInStack;
+		}
 
 		private static const PAGE_STACK_FILL_COLOR: uint = 0xbbbbbb;
 		private static const PAGE_STACK_LINE_COLOR: uint = 0x666666;
@@ -869,8 +911,6 @@ package qs.controls
 		// Rost: draw page stack
 		private function updatePageStack(eventType:String = FlexBookEvent.TURN_START):void
 		{
-			var pageOffset: int = 2;
-
 			var g:Graphics = _pageStack.graphics;
 
 			var curPageIndex: int = _displayedPageIndex;
@@ -923,7 +963,7 @@ package qs.controls
 			for(i; i>c; i--)
 			{
 				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
-				g.drawRect( i * pageOffset - pageOffset, i * pageOffset - pageOffset, w, h);
+				g.drawRect( i * _pageOffsetInStack - _pageOffsetInStack, i * _pageOffsetInStack - _pageOffsetInStack, w, h);
 				g.endFill();
 			}
 
@@ -934,7 +974,7 @@ package qs.controls
 			{
 				//g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true, LineScaleMode.NONE);
 				g.beginFill( PAGE_STACK_FILL_COLOR, 1 );
-				g.drawRect( i * pageOffset + w - pageOffset, i * pageOffset - pageOffset, w, h);
+				g.drawRect( i * _pageOffsetInStack + w - _pageOffsetInStack, i * _pageOffsetInStack - _pageOffsetInStack, w, h);
 				g.endFill();
 			}
 
@@ -1493,7 +1533,7 @@ package qs.controls
 				dx = (_targetPoint.x - _currentDragTarget.x);
 				dy = (_targetPoint.y - _currentDragTarget.y);
 
-				var t:Number = (getTimer() - _turnStartTime)/(autoTurnDurationD * cc );
+				var t:Number = (getTimer() - _turnStartTime)/(autoTurnDurationD /** cc*/ );
 				t = Math.min(t,1);
 
 				var a:Number = t * Math.PI;
