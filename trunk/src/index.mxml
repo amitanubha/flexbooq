@@ -88,6 +88,8 @@
 				conf = new XML(xmlData);
 				//trace("Parse config: " + conf);
 
+				book.maxPageStackDepth = parseInt(conf..book.@maximumPageStackDepth);
+
 				bookPageData = new ArrayCollection();
 
 				var coverVO: BookPageVO = new BookPageVO();
@@ -132,6 +134,7 @@
 				enableButtonById( "bt_download", String(conf..feature.(@id=='download').@enabled).toLowerCase() == "true" );
 				enableButtonById( "bt_helpscreen", String(conf..feature.(@id=='helpscreen').@enabled).toLowerCase() == "true" );
 
+				fastnavigation.maxPages = parseInt(conf..feature.(@id=='fastnavigation').@max);
 				fastnavigation.includeInLayout = fastnavigation.visible = String(conf..feature.(@id=='fastnavigation').@enabled).toLowerCase() == "true";
 				fastnavigation.addEventListener(BookEvent.PAGE_SELECT, bookPageSelectHandler);
 			}

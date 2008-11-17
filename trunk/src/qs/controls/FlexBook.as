@@ -213,10 +213,22 @@ package qs.controls
 		// pages stack for better visualisation
 		private var _pageStack: Sprite;
 		private var _pageStackArray: Array;
+		private var _maxPageStackDepth: int = 7;
 
 //--------------------------------------------------------------------------------------------------------
 // public properties
 //-------------------------------------------------------------------------------------------------------
+
+		// Rost: to implement max page stack depth
+		public function get maxPageStackDepth():int
+		{
+			return _maxPageStackDepth;
+		}
+
+		public function set maxPageStackDepth(value:int):void
+		{
+			_maxPageStackDepth = value;
+		}
 
 		public function get currentPage():FlexBookPage
 		{
@@ -854,6 +866,7 @@ package qs.controls
 		private static const PAGE_STACK_LINE_COLOR: uint = 0x666666;
 		private var _pageStackDirty: Boolean = true;
 
+		// Rost: draw page stack
 		private function updatePageStack(eventType:String = FlexBookEvent.TURN_START):void
 		{
 			var pageOffset: int = 2;
@@ -869,30 +882,20 @@ package qs.controls
 					{
 						curPageIndex += 1;
 					}
-
-					if( _targetPageIndex == -1 )
-					{
-						trace("Alooooha!");
-					}
 				}
 				else
 				{
 					if (curPageIndex == 0)
 					{
 						curPageIndex = -1;
-						trace("curpgaeindex: " + curPageIndex);
-					}
-					if( _targetPageIndex == 0 )
-					{
-						trace("Alooooha!");
 					}
 				}
-				trace("Target page : " +_targetPageIndex );
+				//trace("Target page : " +_targetPageIndex );
 			}
 
 			if(_targetPageIndex == -1 && eventType == FlexBookEvent.TURN_START)
 			{
-				trace("Switching tot the FRonT!");
+				//trace("Switching tot the FRonT!");
 
 				g.clear();
 				return;
@@ -900,7 +903,7 @@ package qs.controls
 
 			if(_targetPageIndex == pageCount && eventType == FlexBookEvent.TURN_START)
 			{
-				trace("Switching tot the END!");
+				//trace("Switching tot the END!");
 				g.clear();
 				return;
 			}
@@ -908,13 +911,14 @@ package qs.controls
 			g.clear();
 
 			// Draw left side
-			var i: int = curPageIndex + 1;
+			var i: int = Math.min(maxPageStackDepth, curPageIndex + 1);
 			var c: int = 0;
 
 			//trace("Draw pages stack: " + curPageIndex + " left, " + pageCount + " total (" + eventType + ")");
 
 			var w: int = width / 2;
 			var h: int = height;
+
 			g.lineStyle(1, PAGE_STACK_LINE_COLOR, 1, true, LineScaleMode.NONE );
 			for(i; i>c; i--)
 			{
@@ -924,7 +928,7 @@ package qs.controls
 			}
 
 			// Draw right side
-			i = pageCount - curPageIndex;
+			i = Math.min(maxPageStackDepth, pageCount - curPageIndex);
 			c = 0;
 			for(i; i>c; i--)
 			{

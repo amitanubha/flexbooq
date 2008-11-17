@@ -91,7 +91,7 @@
 		<fn_page_active mouseup="viewer/fn-active-mouseup.png" mouseover="viewer/fn-active-mouseover.png" />
 	</settings>
 
-	<book bg_image="viewer/bg-default.png" bg_color="#898989" pageWidth="500" pageHeight="614" preloadFullPages="true" >
+	<book bg_image="viewer/bg-default.png" bg_color="#898989" pageWidth="500" pageHeight="614" preloadFullPages="true" maximumPageStackDepth="7" >
 		<!-- settings for each page
 
 		notes:
@@ -107,12 +107,63 @@
 		same situation like for background.
 		-->
 		<cover id="1" source="content/pages/page-1.jpg" thumb="content/thumbs/page-1.jpg" download="content/pdf/catalogue-page-1.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+
 		<page id="2" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
 		<page id="3" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
 		<page id="4" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
 		<page id="5" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
 		<page id="6" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
 		<page id="7" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
-		<backcover id="8" source="content/pages/page-8.jpg" thumb="content/thumbs/page-8.jpg" />
+		
+		<page id="8" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="9" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="10" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="11" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="12" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="13" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="14" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="15" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="16" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="17" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="18" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="19" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="20" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="21" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="22" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="23" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="24" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="25" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="26" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="27" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="28" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="29" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="30" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="31" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="32" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="33" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="34" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="35" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="36" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="37" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="38" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="39" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="40" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="41" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="42" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="43" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<page id="44" source="content/pages/page-2.jpg" thumb="content/thumbs/page-2.jpg" />
+		<page id="45" source="content/pages/page-3.jpg" thumb="content/thumbs/page-3.jpg" download="content/pdf/catalogue-page-2_3.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="46" source="content/pages/page-4.jpg" thumb="content/thumbs/page-4.jpg" />
+		<page id="47" source="content/pages/page-5.jpg" thumb="content/thumbs/page-5.jpg" download="content/pdf/catalogue-page-4_5.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		<page id="48" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
+		<page id="49" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
+		
+		<backcover id="50" source="content/pages/page-8.jpg" thumb="content/thumbs/page-8.jpg" />
 	</book>
 </config>
