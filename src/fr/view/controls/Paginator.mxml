@@ -13,7 +13,18 @@
 
 			private var candidateDataProvider: ArrayCollection;
 			private var dataProviderDirty: Boolean = false;
-			//private var valueDirty: Boolean = true;
+			private var _maxPages: int = 100;
+
+		public function get maxPages():int
+		{
+			return _maxPages;
+		}
+
+		public function set maxPages(value:int):void
+		{
+			_maxPages = value;
+			trace("Fastnavigation: max pages visible = " + _maxPages);
+		}
 
 		override protected function measure():void
 		{

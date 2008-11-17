@@ -13,7 +13,7 @@ package fcat.model
 
 		public function Parameters( appReference: UIComponent )
 		{
-			trace("New paramteres: " + appReference);
+			//trace("New paramteres: " + appReference);
 		}
 	}
 }

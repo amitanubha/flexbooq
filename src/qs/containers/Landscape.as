@@ -406,7 +406,7 @@ package qs.containers
 		private function completeLayout():void
 		{
 			switchPanning();
-			trace("Animation is finished. Book is zoomed in: " + isZoomedIn);
+			//trace("Animation is finished. Book is zoomed in: " + isZoomedIn);
 
 			var event: BookEvent = new BookEvent(BookEvent.PAGE_ZOOM_COMPLETE, true);
 			event.isZoomedIn = isZoomedIn;

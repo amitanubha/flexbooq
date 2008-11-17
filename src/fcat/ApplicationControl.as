@@ -23,7 +23,7 @@ package fcat
 
 		public function initApp(app: Application): void
 		{
-			trace( "init app: " + app );
+			//trace( "init app: " + app );
 
 			this.app = app;
 
