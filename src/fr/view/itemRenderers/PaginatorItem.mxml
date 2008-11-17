@@ -39,7 +39,7 @@
 
 			public function onChange(value: Object): void
 			{
-				trace("on Change");
+				//trace("on Change");
 			}
 
 			override public function set data(value: Object): void
@@ -101,6 +101,7 @@
 				var pageVO: BookPageVO = data as BookPageVO;
 
 				pageNumber.text = String(pageVO.pageId);
+				//trace("Page number: " + pageNumber.text);
 				pageNumber2.text = String(pageVO.pageId + 1);
 
 				if(pageVO.isFrontCover)

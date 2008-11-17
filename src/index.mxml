@@ -88,6 +88,8 @@
 				conf = new XML(xmlData);
 				//trace("Parse config: " + conf);
 
+				setupPreload();
+
 				book.maxPageStackDepth = parseInt(conf..book.@maximumPageStackDepth);
 
 				bookPageData = new ArrayCollection();
@@ -121,8 +123,6 @@
 
 				bookPageData.addItem(backCoverVO);
 
-				setupPreload();
-
 				book.addEventListener(FlexBookEvent.TURN_START, pageTurnStartHandler);
 				book.addEventListener(FlexBookEvent.TURN_END, pageTurnEndHandler);
 
@@ -141,6 +141,8 @@
 
 			private function setupPreload(): void
 			{
+				trace("Setup preload");
+
 				// Preload content to cache
 				var cache: ContentCache = ContentCache.getCache();
 
@@ -173,7 +175,7 @@
 				cache.preloadContent(conf..logo.@mouseover);
 				cache.preloadContent(conf..poweredby.@mouseover);
 
-				cache.preloadContent(conf..backcover.@source);
+				cache.preloadContent(conf..backcover.@thumb);
 				cache.preloadContent(conf..backcover.@source);
 
 				// First, preload the cover
@@ -212,13 +214,13 @@
 					}
 				}
 
-
-
 			}
 
 
 			public function setBookContent(conf: XML): void
 			{
+				trace("Set book content");
+
 				bookAspectRatio = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
 
 				setBookSize();
@@ -372,7 +374,7 @@
 					pageToTurnTo = -1
 				}
 
-				trace("turn: " + event.pageId + " - " + pageToTurnTo );
+//				trace("turn: " + event.pageId + " - " + pageToTurnTo );
 
 				book.turnToPage( pageToTurnTo );
 			}

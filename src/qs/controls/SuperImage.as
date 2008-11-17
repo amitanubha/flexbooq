@@ -276,7 +276,15 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				else
 				{
 					// we have a cache, so delegate to the cache to do the loading.
-					cachedContent = ContentCache.getCache(_cacheName).getContent(newSource);
+
+					//if(smoothImage)
+					//{
+					//	_content = getSmoothedContent(ContentCache.getCache(_cacheName).getContent(newSource));
+					//}
+					//else
+					//{
+						cachedContent = ContentCache.getCache(_cacheName).getContent(newSource);
+					//}
 				}
 				_loadedFromCache = true;
 				// now the cache can give us back different types of display objects. If they gave us back a Loader,
@@ -294,6 +302,8 @@ public class SuperImage extends UIComponent implements IDataRenderer
 				{
 					dispatchEvent(new Event(Event.COMPLETE));
 				}
+
+				_content = cachedContent;
 
 				if(smoothImage)
 				{
@@ -337,8 +347,19 @@ public class SuperImage extends UIComponent implements IDataRenderer
 		return result;
 	}
 
+	//private var smoothedCachedContent: DisplayObject;
+
 	private function loadCompleteHandler(e:Event):void
 	{
+		if(smoothImage && e.target != null && e.target.width > 0 && e.target.height > 0 )
+		{
+			var loadedCnt:Bitmap = e.target.content;
+			//smoothedCachedContent = getSmoothedContent(e.target as DisplayObject);
+			_content = getSmoothedContent(loadedCnt as DisplayObject);
+			if(_content != null)
+			addChild(_content);
+		}
+
 		invalidateSize();
 		invalidateDisplayList();
 		dispatchEvent(new Event(Event.COMPLETE));
