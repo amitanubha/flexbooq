@@ -17,7 +17,7 @@
 		<feature id="zoom" enabled="true" />
 		<feature id="download" enabled="true" />
 		<feature id="helpscreen" enabled="false" />
-		<feature id="fastnavigation" enabled="true" max="3" />
+		<feature id="fastnavigation" enabled="true" max="5" />
 		<feature id="shadow" enabled="true" />
 
 		<!-- advanced features -->
@@ -164,6 +164,6 @@
 		<page id="48" source="content/pages/page-6.jpg" thumb="content/thumbs/page-6.jpg" />
 		<page id="49" source="content/pages/page-7.jpg" thumb="content/thumbs/page-7.jpg" download="content/pdf/catalogue-page-6_7.pdf" bg_image="viewer/bg-page_1.png" bg_color="#ffffff" />
 		
-		<backcover id="50" source="content/pages/page-8.jpg" thumb="content/thumbs/page-8.jpg" />
+		<backcover id="50" source="content/pages/page-1.jpg" thumb="content/thumbs/page-1.jpg"  />
 	</book>
 </config>

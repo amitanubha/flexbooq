@@ -14,6 +14,7 @@
 			private var candidateDataProvider: ArrayCollection;
 			private var dataProviderDirty: Boolean = false;
 			private var _maxPages: int = 100;
+			private var _visiblePagesOffset: int = 1;
 
 		public function get maxPages():int
 		{
@@ -22,7 +23,7 @@
 
 		public function set maxPages(value:int):void
 		{
-			_maxPages = value;
+			_maxPages = 100 ;//value ;
 			trace("Fastnavigation: max pages visible = " + _maxPages);
 		}
 
@@ -42,11 +43,15 @@
 
 			if (dataProviderDirty && candidateDataProvider != null)
 			{
+				// Rost: to support maximum visible items property
+				var dataProviderOffset: int = 1;//_visiblePagesOffset;
+				var dataProviderLength: int = candidateDataProvider.length; //Math.min(maxPages, candidateDataProvider.length);
+
 				var newDataProvider: ArrayCollection = new ArrayCollection();
 
 				newDataProvider.addItem(candidateDataProvider.getItemAt(0));
 
-				for(var i: int = 1; i < candidateDataProvider.length; )
+				for(var i: int = dataProviderOffset; i < dataProviderLength; )
 				{
 					newDataProvider.addItem( candidateDataProvider.getItemAt( i ) );
 
@@ -66,8 +71,29 @@
 			invalidateProperties();
 		}
 
+		public function get activePage():int
+		{
+			return selectedIndex;
+		}
+
 		public function set activePage(value: int): void
 		{
+//			trace("Active page = " + value);
+//
+//			if( candidateDataProvider != null )
+//			{
+//				//_visiblePagesOffset = Math.max(1, Math.min( (activePage), candidateDataProvider.length - _maxPages));
+//				_visiblePagesOffset = activePage;
+//
+//				trace("visiblePagesOffset = " + _visiblePagesOffset, " cand = " + candidateDataProvider.length);
+//			}
+//
+//			dataProviderDirty = true;
+//
+//			invalidateProperties();
+//
+//			invalidateDisplayList();
+//
 			selectedIndex = value;
 		}
 
