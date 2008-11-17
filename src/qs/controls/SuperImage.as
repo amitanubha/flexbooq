@@ -369,7 +369,6 @@ public class SuperImage extends UIComponent implements IDataRenderer
 	{
 	}
 
-
 	override protected function measure():void
 	{
 		var contentWidth:Number;
