@@ -41,7 +41,7 @@ package qs.controls.flexBookClasses
 		private var _rightRenderer:IFlexDisplayObject;
 		private var _allRenderer:IFlexDisplayObject;
 		private var _border:Border;
-		
+
 		private var _side:String;
 		private var _isStiff:Boolean = false;
 		public var leftIsStiff:Boolean = false;
@@ -52,8 +52,8 @@ package qs.controls.flexBookClasses
 		public var leftContent:*;
 		public var rightContent:*;
 		public var allContent:*;
-		
-		
+
+
 		private function updateBorders():void
 		{
 		}
@@ -67,7 +67,7 @@ package qs.controls.flexBookClasses
 		{
 			return _isStiff;
 		}
-		
+
 		public function set side(value:String):void
 		{
 			_side= value;
@@ -77,7 +77,7 @@ package qs.controls.flexBookClasses
 		{
 			return _side;
 		}
-			
+
 		public function FlexBookPage():void
 		{
 		}
@@ -90,14 +90,14 @@ package qs.controls.flexBookClasses
 				borderClass = HaloBorder;
 			_border = new borderClass();
 			_border.styleName = this;
-			addChildAt(_border,0);		
+			addChildAt(_border,0);
 		}
 
 		public function set leftRenderer(value:IFlexDisplayObject):void
 		{
 			if(value == _leftRenderer)
 				return;
-				
+
 			if(_leftRenderer != null)
 			{
 				removeChild(DisplayObject(_leftRenderer));
@@ -119,7 +119,7 @@ package qs.controls.flexBookClasses
 		{
 			if(value == _rightRenderer)
 				return;
-				
+
 			if(_rightRenderer != null)
 			{
 				removeChild(DisplayObject(_rightRenderer));
@@ -131,7 +131,7 @@ package qs.controls.flexBookClasses
 				addChild(DisplayObject(_rightRenderer));
 				_rightRenderer.addEventListener(FlexEvent.UPDATE_COMPLETE,updateCompleteHandler);
 			}
-				
+
 			invalidateDisplayList();
 		}
 		public function get rightRenderer():IFlexDisplayObject
@@ -143,7 +143,7 @@ package qs.controls.flexBookClasses
 		{
 			if(value == _allRenderer)
 				return;
-				
+
 			if(_allRenderer != null)
 			{
 				_allRenderer.removeEventListener(FlexEvent.UPDATE_COMPLETE,updateCompleteHandler);
@@ -167,7 +167,7 @@ package qs.controls.flexBookClasses
 			rightRenderer=  null;
 			allRenderer = null;
 		}
-		
+
 		public function get hasContent():Boolean
 		{
 			return (_leftRenderer != null || _rightRenderer != null || _allRenderer != null);
@@ -185,7 +185,7 @@ package qs.controls.flexBookClasses
 		{
 			dispatchEvent(new FlexEvent(e.type,e.bubbles,e.cancelable));
 		}
-		
+
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
 			var left:Number = getStyle("paddingLeft");
@@ -195,15 +195,15 @@ package qs.controls.flexBookClasses
 			var paddingSpine:Number = getStyle("paddingSpine");
 
 			var metrics:EdgeMetrics = _border.borderMetrics;
-			
+
 			paddingSpine = isNaN(paddingSpine)? 0:paddingSpine;
-			
+
 			left = (isNaN(left)? 0:left) + metrics.left;
 			right = (isNaN(right)? 0:right) + metrics.right;
 			top = (isNaN(top)? 0:top) + metrics.top
 			bottom = (isNaN(bottom)? 0:bottom) + metrics.bottom;
-			
-			
+
+
 			if(_allRenderer != null || (_leftRenderer != null && _rightRenderer != null))
 			{
 				_border.setActualSize(unscaledWidth,unscaledHeight);
@@ -242,7 +242,7 @@ package qs.controls.flexBookClasses
 					UIComponent(_rightRenderer).initialized = true;
 			}
 		}
-		
+
 		public function copyInto(bitmap:BitmapData,side:String):void
 		{
 			cacheAsBitmap = false;
@@ -280,7 +280,7 @@ package qs.controls.flexBookClasses
 			}
 			else
 				bitmap.draw(this);
-				
+
 			cacheAsBitmap = true;
 		}
 	}

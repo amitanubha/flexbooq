@@ -1516,6 +1516,7 @@ package qs.controls
 		{
 			var dx:Number;
 			var dy:Number;
+			var completeDx:Number;
 
 			if(_currentDragTarget == null)
 			{
@@ -1569,12 +1570,21 @@ package qs.controls
 				}
 				else if (_state == STATE_AUTO_COMPLETING)
 				{
-					xSpeedMultiplier = 1.2;
+					xSpeedMultiplier = 1.9;
 					ySpeedMultiplier = 1.5;
 				}
 
 				dx = (_targetPoint.x - _currentDragTarget.x);
 				dy = (_targetPoint.y - _currentDragTarget.y);
+
+				if( dx > 0 )
+				{
+					completeDx = Math.max(dx, 2);
+				}
+				else
+				{
+					completeDx = Math.min(dx, -2);
+				}
 
 				if(Math.abs(dx) <= 1)
 				{
@@ -1601,7 +1611,7 @@ package qs.controls
 				else
 				{
 					// advance both the x and y values.
-					_currentDragTarget.x += dx * X_ACCELERATION * xSpeedMultiplier;
+					_currentDragTarget.x += completeDx * X_ACCELERATION * xSpeedMultiplier;
 					_currentDragTarget.y += dy * Y_ACCELERATION * ySpeedMultiplier;
 
 					//trace("dx = "  + dx );
