@@ -49,12 +49,12 @@
 
 		width/height of the buttons will always stay the same.
 		-->
-		<bt_index mouseup="viewer/bt-index-mouseup.png" mouseover="viewer/bt-index-mouseover.png" />
-		<bt_zoomin mouseup="viewer/bt-zoomin-mouseup.png" mouseover="viewer/bt-zoomin-mouseover.png" />
-		<bt_zoomout mouseup="viewer/bt-zoomout-mouseup.png" mouseover="viewer/bt-zoomout-mouseover.png" />
-		<bt_download mouseup="viewer/bt-download-mouseup.png" mouseover="viewer/bt-download-mouseover.png" />
-		<bt_bookmark mouseup="viewer/bt-bookmark-mouseup.png" mouseover="viewer/bt-bookmark-mouseover.png" />
-		<bt_helpscreen mouseup="viewer/bt-helpscreen-mouseup.png" mouseover="viewer/bt-helpscreen-mouseover.png" />
+		<bt_index mouseup="viewer/bt-index-mouseup.png" mouseover="viewer/bt-index-mouseover.png" tooltip="INDEX" />
+		<bt_zoomin mouseup="viewer/bt-zoomin-mouseup.png" mouseover="viewer/bt-zoomin-mouseover.png" tooltip="Zoom IN" />
+		<bt_zoomout mouseup="viewer/bt-zoomout-mouseup.png" mouseover="viewer/bt-zoomout-mouseover.png" tooltip="Zoom OUT" />
+		<bt_download mouseup="viewer/bt-download-mouseup.png" mouseover="viewer/bt-download-mouseover.png" tooltip="Download page as pdf" />
+		<bt_bookmark mouseup="viewer/bt-bookmark-mouseup.png" mouseover="viewer/bt-bookmark-mouseover.png" tooltip="Bookmark page" />
+		<bt_helpscreen mouseup="viewer/bt-helpscreen-mouseup.png" mouseover="viewer/bt-helpscreen-mouseover.png" tooltip="HELP" />
 
 		<!-- settings for helpscreen
 

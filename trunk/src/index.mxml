@@ -131,6 +131,12 @@
 
 				BindingUtils.bindSetter(setBookContent, this, "conf");
 
+				bt_index.toolTip = String(conf..bt_index.@tooltip);
+				bt_zoomin.toolTip = String(conf..bt_zoomin.@tooltip);
+				bt_zoomout.toolTip = String(conf..bt_zoomout.@tooltip);
+				bt_download.toolTip = String(conf..bt_download.@tooltip);
+				bt_helpscreen.toolTip = String(conf..bt_helpscreen.@tooltip);
+
 				enableButtonById( "bt_index", String(conf..feature.(@id=='index').@enabled).toLowerCase() == "true" );
 				enableButtonById( "bt_zoomin", String(conf..feature.(@id=='zoom').@enabled).toLowerCase() == "true" );
 				enableButtonById( "bt_zoomout", String(conf..feature.(@id=='zoom').@enabled).toLowerCase() == "true" );
@@ -229,7 +235,7 @@
 				//var pageStackSize: Number = parseInt(conf..book.@maximumPageStackDepth) * parseInt(conf..book.@pageOffsetInStack);
 				var pageStackSize: Number = parseInt(conf..book.@maximumPageStackDepth) * parseInt(conf..book.@pageOffsetInStack);
 
-				bookAspectRatio = (parseInt(conf..book.@pageWidth) * 2 + pageStackSize) / (parseInt(conf..book.@pageHeight) + 2 * Math.max(pageStackSize, book.pageNumberHeightOffset ));
+				bookAspectRatio = (parseInt(conf..book.@pageWidth) * 2 + pageStackSize) / (parseInt(conf..book.@pageHeight) + Math.max(pageStackSize, book.pageNumberHeightOffset ));
 				bookAspectRatioNoStack = parseInt(conf..book.@pageWidth) * 2 / (parseInt(conf..book.@pageHeight));
 
 				setBookSize();
@@ -688,19 +694,19 @@
 
 	<HBox id="bottombar" width="100%" height="36" bottom="0" >
 		<Spacer width="5" />
-		<controls:SuperImage toolTip="Show index" source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
+		<controls:SuperImage source="{conf..bt_index.@mouseup}" oversource="{conf..bt_index.@mouseover}" id="bt_index" click="{switchIndex(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_index_spacer" width="5" />
-		<controls:SuperImage toolTip="Zoom in" source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
+		<controls:SuperImage source="{conf..bt_zoomin.@mouseup}" oversource="{conf..bt_zoomin.@mouseover}" id="bt_zoomin" click="{zoomIn(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomin_spacer" width="5" />
-		<controls:SuperImage toolTip="Zoom out" source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
+		<controls:SuperImage source="{conf..bt_zoomout.@mouseup}" oversource="{conf..bt_zoomout.@mouseover}" id="bt_zoomout" click="{zoomOut(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_zoomout_spacer" width="5" />
-		<controls:SuperImage toolTip="Download page as PDF" source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
+		<controls:SuperImage source="{conf..bt_download.@mouseup}" oversource="{conf..bt_download.@mouseover}" id="bt_download" click="{downloadPDFDoc(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_download_spacer" width="5" />
-		<controls:SuperImage toolTip="Show help screen" source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
+		<controls:SuperImage source="{conf..bt_helpscreen.@mouseup}" oversource="{conf..bt_helpscreen.@mouseover}" id="bt_helpscreen" click="{switchHelpScreen(event)}"
 			width="32" enabled="false" visible="false" includeInLayout="false" />
 		<Spacer id="bt_helpscreen_spacer" width="5" />
 	</HBox>
