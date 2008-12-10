@@ -1499,8 +1499,6 @@ package qs.controls
 
 		private function finishTurn():void
 		{
-			cc = 0.5;
-
 			_timer.stop();
 			if(_state == STATE_COMPLETING || _state == STATE_AUTO_TURNING || _state == STATE_AUTO_COMPLETING )
 			{
@@ -1510,7 +1508,6 @@ package qs.controls
 			setState(STATE_NONE);
 		}
 
-		private var cc: Number = 0.5;
 		private function timerHandler(e:TimerEvent):void
 		{
 			var dx:Number;
@@ -1524,21 +1521,16 @@ package qs.controls
 
 			if(_state == STATE_AUTO_TURNING)
 			{
-				cc += 0.1;
-				//cc = Math.min(cc, 1);
-
 				if(isNaN(_turnStartTime))
 					_turnStartTime = getTimer();
 
 				dx = (_targetPoint.x - _currentDragTarget.x);
 				dy = (_targetPoint.y - _currentDragTarget.y);
 
-				var t:Number = (getTimer() - _turnStartTime)/(autoTurnDurationD /** cc*/ );
+				var t:Number = (getTimer() - _turnStartTime)/(autoTurnDurationD );
 				t = Math.min(t,1);
 
 				var a:Number = t * Math.PI;
-
-				//trace("t = " + t + ",  cc = " + cc);
 
 				var accelX: Number = 0.1;//X_ACCELERATION;
 				var accelY: Number = 0.1;//Y_ACCELERATION;
@@ -1565,7 +1557,7 @@ package qs.controls
 				var ySpeedMultiplier:Number = 1;
 				if(_state == STATE_COMPLETING || _state == STATE_REVERTING)
 				{
-					xSpeedMultiplier = 1.5;
+					xSpeedMultiplier = 2.3;//1.5; Rost: make corner reverting faster
 				}
 				else if (_state == STATE_AUTO_COMPLETING)
 				{
@@ -1585,13 +1577,16 @@ package qs.controls
 					completeDx = Math.min(dx, -2);
 				}
 
-				if(Math.abs(dx) <= 1)
+				// Rost: seconf condition is added to make reverting faster
+				if(Math.abs(dx) <= 1 || ( _state == STATE_REVERTING && Math.abs(dx) <= 30) )
 				{
 					// if we're very close to the edge of the page, we get rounding
 					// errors on things like gradients.  So when our x value gets close,
 					// we'll only animate the y value until we're almost done, then just
 					// jump to the final values.
-					if(Math.abs(dy) <= .1)
+
+					// Rost: seconf condition is added to make reverting faster
+					if(Math.abs(dy) <= .1 || ( _state == STATE_REVERTING && Math.abs(dy) <= 30))
 					{
 						// we're as close as we're gonna get, so jump to the end and finish our turn.
 						_currentDragTarget.x += dx;
