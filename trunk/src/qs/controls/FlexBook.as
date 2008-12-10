@@ -1273,7 +1273,6 @@ package qs.controls
 				if(newCorner == _turnedCorner)
 				{
 					_targetPoint = new Point(mouseX, mouseY);
-
 				}
 				else
 				{

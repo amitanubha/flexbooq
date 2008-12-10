@@ -473,9 +473,14 @@
 					{
 						target = book.currentPage.leftRenderer;
 					}
+					trace("Zoom in target: " + target);
 
-					if(landscape.selection.length == 0 || landscape.selection[0] != target)
+
+					//if(landscape.selection.length == 0 || landscape.selection[0] != target)
+					if(!zoomedIn)
 					{
+						landscape.selection[0] = null;
+
 						showStatus("Zoom in");
 						showBookNavigation(false);
 
@@ -500,7 +505,8 @@
 						target = book.currentPage.leftRenderer;
 					}
 
-					if(landscape.selection.length == 1 && landscape.selection[0] == target || target == bookCanvas)
+					//if(landscape.selection.length == 1 && landscape.selection[0] == target || target == bookCanvas)
+					if(zoomedIn)
 					{
 						showStatus("Zoom out");
 						showBookNavigation(true);
