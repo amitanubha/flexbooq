@@ -451,7 +451,7 @@
 				}
 				else */
 				{
-					trace("Zoom book in");
+					//trace("Zoom book in");
 					showBookNavigation(false);
 
 					focusOn( event.currentTarget );
@@ -508,7 +508,7 @@
 					//if(landscape.selection.length == 1 && landscape.selection[0] == target || target == bookCanvas)
 					if(zoomedIn)
 					{
-						showStatus("Zoom out");
+						//showStatus("Zoom out");
 						showBookNavigation(true);
 
 						focusOn( bookCanvas )
@@ -660,7 +660,7 @@
 				<Canvas id="bookCanvas" width="100%" height="100%" resize="{bookCanvasResizeHandler(event)}"
 					horizontalScrollPolicy="off" verticalScrollPolicy="off" >
 					<controls:FlexBook
-						autoTurnDuration="400"
+						autoTurnDuration="350"
 						mouseOver="setMouseCursor('CursorZoom');" mouseOut="setMouseCursor('default');"
 						id="book" y="47" width="50" height="25"
 						animateCurrentPageIndex="true" animatePagesOnTurn="true"
