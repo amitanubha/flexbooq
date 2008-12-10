@@ -188,6 +188,7 @@ package qs.containers
 				_tSX = 1;
 				_tSY = 1;
 				_tTX = _tTY = 0;
+				isZoomedIn = false;
 			}
 			else
 			{
@@ -297,10 +298,10 @@ package qs.containers
 						}
 
 				}
+				//trace("SScale to: " + scale + ", is scaled=" + isZoomedIn);
 				if(	switchScaledState == true )
 				{
 					isZoomedIn = !isZoomedIn;
-					//trace("Scale to: " + scale + ", is scaled=" + isZoomedIn);
 				}
 
 				// To update object coordinates according to mouse position
@@ -406,7 +407,7 @@ package qs.containers
 		private function completeLayout():void
 		{
 			switchPanning();
-			//trace("Animation is finished. Book is zoomed in: " + isZoomedIn);
+			trace("Animation is finished. Book is zoomed in: " + isZoomedIn);
 
 			var event: BookEvent = new BookEvent(BookEvent.PAGE_ZOOM_COMPLETE, true);
 			event.isZoomedIn = isZoomedIn;

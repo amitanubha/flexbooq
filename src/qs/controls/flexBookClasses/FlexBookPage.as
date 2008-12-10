@@ -267,6 +267,7 @@ package qs.controls.flexBookClasses
 			}
 			else if (side == "right")
 			{
+				// FIXME Bad drawing
 				if(bitmap.width < unscaledWidth)
 				{
 					m.translate(-unscaledWidth/2,0);
