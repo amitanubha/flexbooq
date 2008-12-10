@@ -473,7 +473,7 @@
 					{
 						target = book.currentPage.leftRenderer;
 					}
-					trace("Zoom in target: " + target);
+					//trace("Zoom in target: " + target);
 
 
 					//if(landscape.selection.length == 0 || landscape.selection[0] != target)
@@ -481,7 +481,7 @@
 					{
 						landscape.selection[0] = null;
 
-						showStatus("Zoom in");
+						//showStatus("Zoom in");
 						showBookNavigation(false);
 
 						book.mouseEnabled = false;
