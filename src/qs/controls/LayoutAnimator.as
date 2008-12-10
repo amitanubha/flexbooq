@@ -35,11 +35,11 @@ package qs.controls {
 	public class LayoutAnimator {
 
 		private static var running:Number = 0;
-		private const SCALE_TOLERANCE:Number = .01;
+		private const SCALE_TOLERANCE:Number = 1.01;
 		private const ALPHA_TOLERANCE:Number = .01;
-		private const TRANSLATE_TOLERANCE:Number = .5;
-		private const DEFAULT_ANIMATION_SPEED:Number = .35;
-		private const SIZE_TOLERANCE:Number = .5;
+		private const TRANSLATE_TOLERANCE:Number = 150.5;
+		private const DEFAULT_ANIMATION_SPEED:Number = .35;//.35;
+		private const SIZE_TOLERANCE:Number = 300.5;
 		private var _priorityInvalid:Boolean = true;
 		public var completeFunction:Function;
 		public var layoutFunction:Function;
