@@ -1,0 +1,13 @@
+<flex-config xmlns="http://www.adobe.com/2006/flex-config">
+<target-player>10.0.0</target-player>
+<compiler>
+<debug>true</debug>
+<source-path>
+<path-element>C:\Users\R\RASEProjects\Project2\modules\Project2\source_gen</path-element>
+</source-path>
+</compiler>
+<file-specs>
+<path-element>C:\Users\R\RASEProjects\Project2\modules\Project2\source_gen\com\example\Main.as</path-element>
+</file-specs>
+<output>C:\Users\R\RASEProjects\Project2\modules\Project2\output_swf\Project2.swf</output>
+</flex-config>

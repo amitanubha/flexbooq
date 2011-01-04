@@ -1,0 +1,2 @@
+C:\Users\R\RASEProjects\Project2\modules\Project2\source_gen\com\example\Main.as: Warning: This compilation unit did not have a factoryClass specified in Frame metadata to load the configured runtime shared libraries. To compile without runtime shared libraries either set the -static-link-runtime-shared-libraries option to true or remove the -runtime-shared-libraries option.
+

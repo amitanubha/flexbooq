@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dependenciesRoot>
+  <dependency className="com.example.LogingUtil_0" />
+  <dependency className="com.example.Main" />
+</dependenciesRoot>
+
