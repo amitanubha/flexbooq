@@ -1,0 +1,1 @@
+Based on the Flex Book from Ely Greenfield of http://quietlyscheming.com/, this project adds pagination, configuration and page zooming with panning for more detailed views.
